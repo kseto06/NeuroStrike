@@ -24,30 +24,42 @@ public class Hurtbox : MonoBehaviour
         //Define boxes
         hurtboxes = new List<Box>
         {
-            new Box { name = "Hips", path = "mixamorig:Hips", radius = 0.13f, height = 0.25f, offset = Vector3.zero },
-            new Box { name = "Spine", path = "mixamorig:Hips/mixamorig:Spine", radius = 0.085f, height = 0.25f, offset = new Vector3(0f, 0.1f, 0.1f) },
-            new Box { name = "Spine1", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1", radius = 0.1f, height = 0.25f, offset = Vector3.zero },
-            new Box { name = "Spine2", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2", radius = 0.1f, height = 0.25f, offset = Vector3.zero },
-            new Box { name = "Neck", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:Neck", radius = 0.02f, height = 0.05f, offset = Vector3.zero },
-            new Box { name = "Head", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:Neck/mixamorig:Head", radius = 0.075f, height = 0.21f, offset = new Vector3(0f, 0f, 0.05f) },
+            //new Box { name = "Hips", path = "mixamorig:Hips", radius = 0.13f, height = 0.25f, offset = Vector3.zero },
+            //new Box { name = "Spine", path = "mixamorig:Hips/mixamorig:Spine", radius = 0.085f, height = 0.25f, offset = new Vector3(0f, 0.1f, 0.1f) },
+            
+            //Chest & Hip Area:
+            new Box { name = "Spine1", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1", radius = 0.175f, height = 0.45f, offset = new Vector3(0f, -0.15f, 0f) },
+            new Box { name = "Spine2", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2", radius = 0.17f, height = 0.4f, offset = new Vector3(0f, 0f, 0.05f) }, //Chest?
 
-            new Box { name = "LeftShoulder", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:LeftShoulder", radius = 0.07f, height = 0.15f, offset = Vector3.zero },
-            new Box { name = "LeftArm", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:LeftShoulder/mixamorig:LeftArm", radius = 0.05f, height = 0.3f, offset = Vector3.zero },
-            new Box { name = "LeftForeArm", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:LeftShoulder/mixamorig:LeftArm/mixamorig:LeftForeArm", radius = 0.04f, height = 0.3f, offset = Vector3.zero },
-            new Box { name = "LeftHand", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:LeftShoulder/mixamorig:LeftArm/mixamorig:LeftForeArm/mixamorig:LeftHand", radius = 0.06f, height = 0.13f, offset = Vector3.zero },
+            //Neck & Head:
+            new Box { name = "Neck", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:Neck", radius = 0.07f, height = 0.2f, offset = Vector3.zero },
+            new Box { name = "Head", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:Neck/mixamorig:Head", radius = 0.14f, height = 0.3f, offset = new Vector3(0f, 0.055f, 0.01f) },
 
-            new Box { name = "RightShoulder", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder", radius = 0.07f, height = 0.15f, offset = Vector3.zero },
-            new Box { name = "RightArm", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm", radius = 0.05f, height = 0.3f, offset = Vector3.zero },
-            new Box { name = "RightForeArm", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm", radius = 0.04f, height = 0.3f, offset = Vector3.zero },
-            new Box { name = "RightHand", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm/mixamorig:RightHand", radius = 0.06f, height = 0.13f, offset = Vector3.zero },
+            //Arms:
+            new Box { name = "RightShoulder", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder", radius = 0.1f, height = 0.25f, offset = new Vector3(0f, 0.05f, 0f)  },
+            new Box { name = "RightArm", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm", radius = 0.07f, height = 0.4f, offset = new Vector3(0f, 0.15f, 0f) },
+            new Box { name = "RightElbow", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm", radius = 0.07f, height = 0f, offset = Vector3.zero },
+            new Box { name = "RightForeArm", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm", radius = 0.045f, height = 0.3f, offset = new Vector3(0f, 0.15f, 0f) },
+            new Box { name = "RightHand", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm/mixamorig:RightHand", radius = 0.075f, height = 0.1f, offset = new Vector3(0f, 0.07f, 0.02f)},
 
-            new Box { name = "LeftUpLeg", path = "mixamorig:Hips/mixamorig:LeftUpLeg", radius = 0.07f, height = 0.4f, offset = Vector3.zero },
-            new Box { name = "LeftLeg", path = "mixamorig:Hips/mixamorig:LeftUpLeg/mixamorig:LeftLeg", radius = 0.09f, height = 0.4f, offset = Vector3.zero },
-            new Box { name = "LeftFoot", path = "mixamorig:Hips/mixamorig:LeftUpLeg/mixamorig:LeftLeg/mixamorig:LeftFoot", radius = 0.08f, height = 0.25f, offset = Vector3.zero },
+            new Box { name = "LeftShoulder", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:LeftShoulder", radius = 0.1f, height = 0.25f, offset = new Vector3(0f, 0.05f, 0f)  },
+            new Box { name = "LeftArm", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:LeftShoulder/mixamorig:LeftArm", radius = 0.07f, height = 0.4f, offset = new Vector3(0f, 0.15f, 0f) },
+            new Box { name = "LeftElbow", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:LeftShoulder/mixamorig:LeftArm/mixamorig:LeftForeArm", radius = 0.07f, height = 0f, offset = Vector3.zero },
+            new Box { name = "LeftForeArm", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:LeftShoulder/mixamorig:LeftArm/mixamorig:LeftForeArm", radius = 0.045f, height = 0.3f, offset = new Vector3(0f, 0.15f, 0f) },
+            new Box { name = "LeftHand", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:LeftShoulder/mixamorig:LeftArm/mixamorig:LeftForeArm/mixamorig:LeftHand", radius = 0.075f, height = 0.1f, offset = new Vector3(0f, 0.07f, 0.02f)},
 
-            new Box { name = "RightUpLeg", path = "mixamorig:Hips/mixamorig:RightUpLeg", radius = 0.07f, height = 0.4f, offset = Vector3.zero },
-            new Box { name = "RightLeg", path = "mixamorig:Hips/mixamorig:RightUpLeg/mixamorig:RightLeg", radius = 0.09f, height = 0.4f, offset = Vector3.zero },
-            new Box { name = "RightFoot", path = "mixamorig:Hips/mixamorig:RightUpLeg/mixamorig:RightLeg/mixamorig:RightFoot", radius = 0.08f, height = 0.25f, offset = Vector3.zero },
+            //Legs:
+            new Box { name = "RightThigh", path = "mixamorig:Hips/mixamorig:RightUpLeg", radius = 0.12f, height = 0.5f, offset = new Vector3(0f, 0.2f, 0f)}, //Thigh
+            new Box { name = "RightKnee", path = "mixamorig:Hips/mixamorig:RightUpLeg/mixamorig:RightLeg", radius = 0.08f, height = 0f, offset = Vector3.zero }, //Knee
+            new Box { name = "RightCalf", path = "mixamorig:Hips/mixamorig:RightUpLeg/mixamorig:RightLeg", radius = 0.07f, height = 0.5f, offset = new Vector3(0f, 0.2f, 0f) }, //Calf
+            new Box { name = "RightFoot", path = "mixamorig:Hips/mixamorig:RightUpLeg/mixamorig:RightLeg/mixamorig:RightFoot", radius = 0.05f, height = 0.25f, offset = new Vector3(0f, 0.05f, 0f) },
+            new Box { name = "RightToeBase", path = "mixamorig:Hips/mixamorig:RightUpLeg/mixamorig:RightLeg/mixamorig:RightFoot/mixamorig:RightToeBase", radius = 0.05f, height = 0.3f, offset = new Vector3(0f, -0.07f, 0f) },
+
+            new Box { name = "LeftThigh", path = "mixamorig:Hips/mixamorig:LeftUpLeg", radius = 0.12f, height = 0.5f, offset = new Vector3(0f, 0.2f, 0f)}, //Thigh
+            new Box { name = "LeftKnee", path = "mixamorig:Hips/mixamorig:LeftUpLeg/mixamorig:LeftLeg", radius = 0.08f, height = 0f, offset = Vector3.zero }, //Knee
+            new Box { name = "LeftCalf", path = "mixamorig:Hips/mixamorig:LeftUpLeg/mixamorig:LeftLeg", radius = 0.07f, height = 0.5f, offset = new Vector3(0f, 0.2f, 0f) }, //Calf
+            new Box { name = "LeftFoot", path = "mixamorig:Hips/mixamorig:LeftUpLeg/mixamorig:LeftLeg/mixamorig:LeftFoot", radius = 0.05f, height = 0.25f, offset = new Vector3(0f, 0.05f, 0f) },
+            new Box { name = "LeftToeBase", path = "mixamorig:Hips/mixamorig:LeftUpLeg/mixamorig:LeftLeg/mixamorig:LeftFoot/mixamorig:LeftToeBase", radius = 0.05f, height = 0.3f, offset = new Vector3(0f, -0.07f, 0f) },
         };
     
         //Init hurtboxes
@@ -61,13 +73,13 @@ public class Hurtbox : MonoBehaviour
             //Define the hurtbox GameObjects and Capsule Colliders
             GameObject hurtbox = new GameObject($"Hurtbox_{box.name}");
             hurtbox.transform.SetParent(bone);
-            hurtbox.transform.localPosition = box.offset;
+            hurtbox.transform.localPosition = Vector3.zero; //box.offset;
             hurtbox.transform.localRotation = Quaternion.identity;
 
             CapsuleCollider collider = hurtbox.AddComponent<CapsuleCollider>();
             collider.radius = box.radius;
             collider.height = box.height;
-            collider.center = Vector3.zero;
+            collider.center = box.offset; //Vector3.zero;
             collider.direction = 1; // Y-axis
             collider.isTrigger = true;
             if (hurtboxMat) 
@@ -88,13 +100,35 @@ public class Hurtbox : MonoBehaviour
 public class HurtboxTrigger : MonoBehaviour
 {
     public string boxName;
+    private Animator animator;
+    private AnimationController animationController;
+    
+    private void Start() 
+    {
+        animator = GetComponentInParent<Animator>();
+        animationController = GetComponentInParent<AnimationController>();
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Hitbox"))
-        {
+        if (other.CompareTag("Hitbox") && !animator.GetCurrentAnimatorStateInfo(0).IsName("Block")) {
             Debug.Log($"Hurtbox {boxName} hit by {other.name}");
-            // On-hit logic/reaction here (for later)
+            
+            if (boxName == "Head" || boxName == "Neck") {
+                animationController.Play("HeadHit");
+
+            } else if (boxName == "Spine1" || boxName == "Spine2") {
+                animationController.Play("BodyHit");
+
+            } else if (boxName.Contains("Right")) {
+                animationController.Play("RightSideHit");
+
+            } else if (boxName.Contains("Left")) {
+                animationController.Play("LeftSideHit");
+            }
+
+        } else if (other.CompareTag("Hitbox") && animator.GetCurrentAnimatorStateInfo(0).IsName("Block")) {
+            Debug.Log($"Blocked hit by {other.name}");
         }
     }
 }
