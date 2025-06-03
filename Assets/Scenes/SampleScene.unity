@@ -233,6 +233,62 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6c01a2b1f67b4773b1661b785ad61bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
+  isAnimating: 0
+--- !u!114 &54703637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 54703626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c95cbdca5447a407d833ce8dbcb07c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentParameters:
+    maxStep: 0
+  hasUpgradedFromAgentParameters: 1
+  MaxStep: 0
+  opponent: {fileID: 878799931}
+  animationController: {fileID: 54703636}
+  isAnimating: 0
+  rb: {fileID: 54703635}
+  hurtbox: {fileID: 54703630}
+  hitbox: {fileID: 54703634}
+  inputAction: 
+--- !u!114 &54703638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 54703626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d1c4e0b1822b495aa52bc52839ecb30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_BrainParameters:
+    VectorObservationSize: 1
+    NumStackedVectorObservations: 1
+    m_ActionSpec:
+      m_NumContinuousActions: 0
+      BranchSizes: 01000000
+    VectorActionSize: 01000000
+    VectorActionDescriptions: []
+    VectorActionSpaceType: 0
+    hasUpgradedBrainParametersWithActionSpec: 1
+  m_Model: {fileID: 0}
+  m_InferenceDevice: 0
+  m_BehaviorType: 0
+  m_BehaviorName: My Behavior
+  TeamId: 0
+  m_UseChildSensors: 1
+  m_UseChildActuators: 1
+  m_DeterministicInference: 0
+  m_ObservableAttributeHandling: 0
 --- !u!1 &91234302 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1339101018200438765, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
@@ -453,6 +509,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       insertIndex: -1
       addedObject: {fileID: 878799930}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 878799932}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 878799931}
     - targetCorrespondingSourceObject: {fileID: -3090848061168836670, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       insertIndex: -1
       addedObject: {fileID: 181205604}
@@ -1095,6 +1157,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       insertIndex: -1
       addedObject: {fileID: 54703636}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 54703638}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 54703637}
     - targetCorrespondingSourceObject: {fileID: -3090848061168836670, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1466598658}
@@ -1394,7 +1462,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.00759212, w: 0.9999712}
   m_LocalPosition: {x: -0.052066803, y: -0.014277935, z: 0.10913706}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.75, y: 1, z: 0.75}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1695,6 +1763,62 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6c01a2b1f67b4773b1661b785ad61bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
+  isAnimating: 0
+--- !u!114 &878799931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878799923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c95cbdca5447a407d833ce8dbcb07c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentParameters:
+    maxStep: 0
+  hasUpgradedFromAgentParameters: 1
+  MaxStep: 0
+  opponent: {fileID: 54703637}
+  animationController: {fileID: 878799930}
+  isAnimating: 0
+  rb: {fileID: 878799924}
+  hurtbox: {fileID: 878799926}
+  hitbox: {fileID: 878799925}
+  inputAction: 
+--- !u!114 &878799932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878799923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d1c4e0b1822b495aa52bc52839ecb30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_BrainParameters:
+    VectorObservationSize: 1
+    NumStackedVectorObservations: 1
+    m_ActionSpec:
+      m_NumContinuousActions: 0
+      BranchSizes: 01000000
+    VectorActionSize: 01000000
+    VectorActionDescriptions: []
+    VectorActionSpaceType: 0
+    hasUpgradedBrainParametersWithActionSpec: 1
+  m_Model: {fileID: 0}
+  m_InferenceDevice: 0
+  m_BehaviorType: 0
+  m_BehaviorName: My Behavior
+  TeamId: 0
+  m_UseChildSensors: 1
+  m_UseChildActuators: 1
+  m_DeterministicInference: 0
+  m_ObservableAttributeHandling: 0
 --- !u!1 &883381560 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8817898888258712963, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}

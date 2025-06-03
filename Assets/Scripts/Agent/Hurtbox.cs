@@ -24,9 +24,6 @@ public class Hurtbox : MonoBehaviour
         //Define boxes
         hurtboxes = new List<Box>
         {
-            //new Box { name = "Hips", path = "mixamorig:Hips", radius = 0.13f, height = 0.25f, offset = Vector3.zero },
-            //new Box { name = "Spine", path = "mixamorig:Hips/mixamorig:Spine", radius = 0.085f, height = 0.25f, offset = new Vector3(0f, 0.1f, 0.1f) },
-            
             //Chest & Hip Area:
             new Box { name = "Spine1", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1", radius = 0.175f, height = 0.45f, offset = new Vector3(0f, -0.15f, 0f) },
             new Box { name = "Spine2", path = "mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2", radius = 0.17f, height = 0.4f, offset = new Vector3(0f, 0f, 0.05f) }, //Chest?
@@ -102,32 +99,51 @@ public class HurtboxTrigger : MonoBehaviour
     public string boxName;
     private Animator animator;
     private AnimationController animationController;
+    private SparringAgent agent;
     
     private void Start() 
     {
         animator = GetComponentInParent<Animator>();
         animationController = GetComponentInParent<AnimationController>();
+        agent = GetComponentInParent<SparringAgent>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Hitbox") && !animator.GetCurrentAnimatorStateInfo(0).IsName("Block")) {
+        if (other.CompareTag("Hitbox") && !animator.GetCurrentAnimatorStateInfo(0).IsName("Block"))
+        {
             Debug.Log($"Hurtbox {boxName} hit by {other.name}");
-            
-            if (boxName == "Head" || boxName == "Neck") {
-                animationController.Play("HeadHit");
 
-            } else if (boxName == "Spine1" || boxName == "Spine2") {
-                animationController.Play("BodyHit");
+            string hurtAction = null;
 
-            } else if (boxName.Contains("Right")) {
-                animationController.Play("RightSideHit");
-
-            } else if (boxName.Contains("Left")) {
-                animationController.Play("LeftSideHit");
+            if (boxName == "Head" || boxName == "Neck")
+            {
+                hurtAction = "HeadHit";
+            }
+            else if (boxName == "Spine1" || boxName == "Spine2")
+            {
+                hurtAction = "BodyHit";
+            }
+            else if (boxName.Contains("Right"))
+            {
+                hurtAction = "RightSideHit";
+            }
+            else if (boxName.Contains("Left"))
+            {
+                hurtAction = "LeftSideHit";
             }
 
-        } else if (other.CompareTag("Hitbox") && animator.GetCurrentAnimatorStateInfo(0).IsName("Block")) {
+            if (!string.IsNullOrEmpty(hurtAction))
+            {
+                var agent = GetComponentInParent<SparringAgent>();
+                if (agent != null)
+                {
+                    agent.inputAction = hurtAction;
+                }
+            }
+        }
+        else if (other.CompareTag("Hitbox") && animator.GetCurrentAnimatorStateInfo(0).IsName("Block"))
+        {
             Debug.Log($"Blocked hit by {other.name}");
         }
     }

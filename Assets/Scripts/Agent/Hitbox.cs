@@ -47,9 +47,11 @@ public class Hitbox : MonoBehaviour
         };
 
         //Init hitbox colliders
-        foreach (var box in hitboxes) {
+        foreach (var box in hitboxes) 
+        {
             var bone = transform.Find(box.path);
-            if (bone == null) {
+            if (bone == null) 
+            {
                 Debug.LogWarning($"{box.path} not found for {box.name}");
                 continue;
             }
@@ -125,25 +127,32 @@ public class Hitbox : MonoBehaviour
     //Function for hitbox activation based on current animation
     public void ActivateHitboxes(string animationName) 
     {
-        foreach (var box in hitboxes) {
+        foreach (var box in hitboxes) 
+        {
             box.collider.SetActive(false);
         }
 
-        if (hitboxMap.TryGetValue(animationName, out var activeNames)) {
-            foreach (var name in activeNames) {
+        if (hitboxMap.TryGetValue(animationName, out var activeNames)) 
+        {
+            foreach (var name in activeNames) 
+            {
                 var box = hitboxes.Find(b => b.name == name);
-                if (box != null) {
+                if (box != null) 
+                {
                     box.collider.SetActive(true);
                 }
             }
-        } else {
+        } 
+        else 
+        {
             Debug.LogWarning($"No hitboxes found for animation: {animationName}");
         }
     }
     
     public void DeactivateHitboxes() 
     {
-        foreach (var box in hitboxes) {
+        foreach (var box in hitboxes) 
+        {
             box.collider.SetActive(false);
         }
     }

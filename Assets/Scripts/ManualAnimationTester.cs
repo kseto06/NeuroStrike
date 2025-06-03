@@ -6,10 +6,10 @@ public class ManualAnimationTester : MonoBehaviour
 {
     private AnimationController animationController;
     private Animator animator;
-    private bool isAnimating = false;
-    private Coroutine resetCoroutine;
 
     private Rigidbody rb;
+
+    private SparringAgent agent;
 
     void Start()
     {
@@ -29,40 +29,39 @@ public class ManualAnimationTester : MonoBehaviour
 
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotation;
+
+        agent = GetComponent<SparringAgent>();
     }
 
     void Update()
     {
-        if (isAnimating)
-            return;
-
         // Movement:
         if (Input.GetKeyDown(KeyCode.W)) 
-            animationController.Play("MediumStepForward");
+            agent.inputAction = "MediumStepForward";
 
         if (Input.GetKeyDown(KeyCode.S)) 
-            animationController.Play("StepBackward");
+            agent.inputAction = "StepBackward";
 
         if (Input.GetKeyDown(KeyCode.A)) 
-            animationController.Play("MediumLeftSideStep");
+            agent.inputAction = "MediumLeftSideStep";
 
         if (Input.GetKeyDown(KeyCode.D)) 
-            animationController.Play("MediumRightSideStep");
+            agent.inputAction = "MediumRightSideStep";
 
         // Combat:
         if (Input.GetKeyDown(KeyCode.I)) 
-            animationController.Play("Block");
+            agent.inputAction = "Block";
 
         if (Input.GetKeyDown(KeyCode.J))
-            animationController.Play("LeftJab");
+            agent.inputAction = "LeftJab";
 
         if (Input.GetKeyDown(KeyCode.K)) 
-            animationController.Play("HighRoundhouseKick");
+            agent.inputAction = "HighRoundhouseKick";
 
         if (Input.GetKeyDown(KeyCode.L)) 
-            animationController.Play("LeadTeep");
+            agent.inputAction = "LeadTeep";
 
         if (Input.GetKeyDown(KeyCode.M)) 
-            animationController.Play("SpinningHookKick");
+            agent.inputAction = "SpinningHookKick";
     }
 }

@@ -8,7 +8,8 @@ public class HitboxActivator : StateMachineBehaviour
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         var hitbox = animator.GetComponent<Hitbox>();
-        if (hitbox != null) {
+        if (hitbox != null) 
+        {
             hitbox.ActivateHitboxes(animationName);
         }
     }
@@ -16,7 +17,8 @@ public class HitboxActivator : StateMachineBehaviour
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         var hitbox = animator.GetComponent<Hitbox>();
-        if (hitbox != null) {
+        if (hitbox != null) 
+        {
             hitbox.DeactivateHitboxes();
         }
     }
