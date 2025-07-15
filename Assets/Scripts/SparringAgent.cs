@@ -6,18 +6,48 @@ using UnityEngine.UI;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
+using Unity.MLAgents.Policies;
+
+public enum Team
+{
+    Player = 0,
+    Opponent = 1
+}
 
 public class SparringAgent : Agent
 {
     // Agent setup
     public SparringAgent opponent;
+    [HideInInspector] public Team team;
+    private BehaviorParameters behaviorParameters;
+    private const int MAX_STEPS = 1000; // Maximum steps per episode (20s)
 
     //Env
     private GameObject ground;
     private GameObject area;
     [HideInInspector] private Bounds areaBounds;
 
+    public SparringEnvController envController
+    {
+        get
+        {
+            if (m_envController)
+            {
+                return m_envController;
+            }
+            else
+            {
+                m_envController = transform.parent.GetComponent<SparringEnvController>();
+                return m_envController;
+            }
+        }
+    }
+    private SparringEnvController m_envController;
+    SparringEnvController.AgentInfo m_agentInfo;
+
     // Moveset
+    private List<string> Moveset = new List<string>();
+
     private List<string> HurtList = new List<string>
     {
         "BodyHit",
@@ -26,18 +56,18 @@ public class SparringAgent : Agent
         "LeftSideHit"
     };
 
-    private List<string> MoveList = new List<string> { 
-        "StepBackward", 
-        "ShortStepForward", 
-        "MediumStepForward", 
+    private List<string> MoveList = new List<string> {
+        "StepBackward",
+        "ShortStepForward",
+        "MediumStepForward",
         "LongStepForward",
-        "ShortRightSideStep", 
-        "ShortLeftSideStep", 
-        "MediumRightSideStep", 
+        "ShortRightSideStep",
+        "ShortLeftSideStep",
+        "MediumRightSideStep",
         "MediumLeftSideStep",
-        "LongRightSideStep", 
-        "LongLeftSideStep", 
-        "LeftPivot", 
+        "LongRightSideStep",
+        "LongLeftSideStep",
+        "LeftPivot",
         "RightPivot"
     };
 
@@ -79,6 +109,7 @@ public class SparringAgent : Agent
 
     [Header("Hurtboxes & Hitboxes")]
     [SerializeField] private Hurtbox hurtbox;
+    public int hitsReceived = 0;
     [SerializeField] private Hitbox hitbox;
     private Dictionary<string, int> hitboxRewards;
 
@@ -86,7 +117,8 @@ public class SparringAgent : Agent
     //Current state of the agent
     private AgentState currentState;
     public string inputAction;
-    
+    public bool doingMove = false;
+
     // Init all possible agent states
     private IdleState idleState;
     private BlockingState blockState;
@@ -94,11 +126,40 @@ public class SparringAgent : Agent
     private HurtState hurtState;
     private MovingState moveState;
 
+    // State Mapping
+    private Dictionary<string, int> stateMapping = new Dictionary<string, int> {
+        { "IdleState", 0 },
+        { "AttackingState", 1 },
+        { "BlockingState", 2 },
+        { "MovingState", 3 },
+        { "HurtState", 4 }
+    };
 
-    public override void Initialize() 
+
+    public override void Initialize()
     {
+        // Get hitbox and hurtbox components
         hitbox = GetComponentInChildren<Hitbox>();
         hurtbox = GetComponentInChildren<Hurtbox>();
+
+        // Construct full moveset (action space)
+        Moveset.Add("Idle");
+        Moveset.Add("Block");
+        Moveset.AddRange(MoveList);
+        Moveset.AddRange(AttackList);
+
+        // Behaviour params and team setup for self-play
+        behaviorParameters = GetComponent<BehaviorParameters>();
+        team = (Team)behaviorParameters.TeamId;
+
+        if (behaviorParameters.TeamId == (int)Team.Player)
+        {
+            team = Team.Player;
+        }
+        else
+        {
+            team = Team.Opponent;
+        }
     }
 
     void Start()
@@ -107,7 +168,8 @@ public class SparringAgent : Agent
         animator = GetComponent<Animator>();
         animationController = GetComponent<AnimationController>();
 
-        if (animationController == null) {
+        if (animationController == null)
+        {
             Debug.LogError("Missing AnimationController on " + gameObject.name);
             return;
         }
@@ -132,48 +194,6 @@ public class SparringAgent : Agent
 
         currentState = idleState; //Start in idle state
         currentState.Enter(null);
-
-        // RL setup
-        hitboxRewards = new Dictionary<string, int>
-        {
-            { "LeftJab", 5 },
-            { "LeftCross", 6 },
-            { "LeftHook", 7 },
-            { "RightJab", 5 },
-            { "RightCross", 6 },
-            { "RightHook", 7 },
-            { "LeftUppercut", 8 },
-            { "RightUppercut", 8 },
-            { "LeadUppercut", 8 },
-            { "RearUppercut", 8 },
-            { "RightElbow", 10 },
-            { "LeftElbow", 10 },
-            { "RightUpwardsElbow", 12 },
-            { "LeadKnee", 9 },
-            { "RearKnee", 9 },
-            { "LowKick", 10 },
-            { "MidRoundhouseKick", 12 },
-            { "HighRoundhouseKick", 15 },
-            { "SpinningHookKick", 18 },
-            { "SideKick", 14 },
-            { "LeadTeep", 8 },
-            { "RearTeep", 9 },
-            { "ComboPunch", 20 },
-            { "Block", 0 },
-            { "StepBackward", 0 },
-            { "ShortStepForward", 0 },
-            { "MediumStepForward", 0 },
-            { "LongStepForward", 0 },
-            { "ShortRightSideStep", 0 },
-            { "ShortLeftSideStep", 0 },
-            { "MediumRightSideStep", 0 },
-            { "MediumLeftSideStep", 0 },
-            { "LongRightSideStep", 0 },
-            { "LongLeftSideStep", 0 },
-            { "LeftPivot", 0 },
-            { "RightPivot", 0 },
-            { "Idle", 0 }
-        };
     }
 
     void Update()
@@ -219,7 +239,6 @@ public class SparringAgent : Agent
             rb.MovePosition(rb.position + animator.deltaPosition);
             rb.MoveRotation(rb.rotation * animator.deltaRotation);
         }
-        
     }
 
     private AgentState GetStateFromAction(string action)
@@ -240,36 +259,184 @@ public class SparringAgent : Agent
         {
             return new BlockingState(this, action);
         }
-        else 
+        else
         {
             return new IdleState(this, action);
         }
     }
 
-    // //RL Functions:
-    // public struct VisibleState(
-    //     //Spatial awareness
-    //     public Vector3 localPosition;
-    //     public Vector3 localRotation;
-    //     public float distanceToOpponent;
-    //     public float angleToOpponent;
+    // Observations
+    public override void CollectObservations(VectorSensor sensor)
+    {
+        // Add the player's own data to observations
+        VisibleState playerVisibleState = GetVisibleState();
+        playerVisibleState.AddObservations(sensor);
 
-    //     // Combat state
-    //     public bool isBlocking;
-    //     public bool isAttacking;
-    //     public bool isHurt;
-    //     public bool isMoving;
-    //     public string currentAnimation;
+        // Add the opponent's data to observations
+        VisibleState opponentVisibleState = opponent.GetVisibleState();
+        opponentVisibleState.AddObservations(sensor);
+    }
 
-    //     //Timing, Cooldowns
-        
-    // )
+    public struct VisibleState
+    {
+        // Fields
+        public Vector3 localPosition;
+        public Vector3 facingDirection;
+        public Vector3 opponentPosition;
 
+        public AgentState currentState;
+        public AgentState idleState;
+        public AgentState hurtState;
+
+        public int stateIdx;
+        public int actionIdx;
+        public bool doingMove;
+        public int hitsReceived;
+
+        // Constructor
+        public VisibleState(
+            //Spatial variables
+            Vector3 localPosition,
+            Vector3 facingDirection,
+            Vector3 opponentPosition,
+
+            //State
+            AgentState currentState,
+            AgentState idleState,
+            AgentState hurtState,
+            int stateIdx,
+
+            //Actions
+            int actionIdx,
+            bool doingMove,
+
+            //Hits
+            int hitsReceived
+
+        )
+        {
+            this.localPosition = localPosition;
+            this.facingDirection = facingDirection;
+            this.opponentPosition = opponentPosition;
+            this.currentState = currentState;
+            this.idleState = idleState;
+            this.hurtState = hurtState;
+            this.stateIdx = stateIdx;
+            this.actionIdx = actionIdx;
+            this.doingMove = doingMove;
+            this.hitsReceived = hitsReceived;
+        }
+
+        public void AddObservations(VectorSensor sensor)
+        {
+            // Agent position 
+            sensor.AddObservation(this.localPosition.x);
+            sensor.AddObservation(this.localPosition.y);
+
+            // Perception params -- distance and angle to opponent
+            sensor.AddObservation(Vector3.SignedAngle(Vector3.ProjectOnPlane(this.facingDirection, Vector3.up),
+                                Vector3.ProjectOnPlane(this.opponentPosition - this.localPosition, Vector3.up).normalized,
+                                Vector3.up) / 180f);
+
+            sensor.AddObservation(Vector3.Distance(this.localPosition, this.opponentPosition)); //Distance to opponent
+
+            // Agent state
+            sensor.AddObservation(this.stateIdx);
+
+            // Actions (within each of the agent states)
+            if (this.currentState is IMoveTypeState moveTypeState)
+            {
+                //sensor.AddObservation((float)moveTypeState.GetMoveTypeIndex() / moveTypeState.mapLength); //Normalized move type index
+                sensor.AddObservation((float)moveTypeState.GetMoveTypeIndex());
+            }
+            else
+            {
+                //NOTE: Blocking and Idle states only have one action (no further move types)
+                sensor.AddObservation(0f);
+            }
+
+            if (this.currentState != this.idleState && this.currentState != this.hurtState)
+            {
+                this.doingMove = true;
+            }
+            else
+            {
+                this.doingMove = false;
+            }
+            sensor.AddObservation(this.doingMove);
+
+            // Hits
+            sensor.AddObservation(this.hitsReceived);
+
+            // Maybe add time later
+
+            // // Add distance to opponent
+            // float distanceToOpponent = Vector3.Distance(transform.position, opponent.transform.position);
+            // sensor.AddObservation(distanceToOpponent);
+
+            // // Add angle to opponent
+            // Vector3 directionToOpponent = (opponent.transform.position - transform.position).normalized;
+            // float angleToOpponent = Vector3.Angle(transform.forward, directionToOpponent);
+            // sensor.AddObservation(angleToOpponent);
+
+            // // Add current animation state
+            // sensor.AddObservation(animationController.GetCurrentAnimation());
+        }
+    }
+
+    public VisibleState GetVisibleState()
+    {
+        return new VisibleState
+        (
+            transform.localPosition,
+            transform.forward,
+            opponent.transform.localPosition,
+            currentState,
+            idleState,
+            hurtState,
+            stateMapping.TryGetValue(currentState.GetType().Name, out int stateIdx) ? stateIdx : 0,
+            currentState is IMoveTypeState moveTypeState ? moveTypeState.GetMoveTypeIndex() : 0,
+            doingMove,
+            hitsReceived
+        );
+    }
+
+
+    // Sampling Actions and Getting Rewards
+    public override void OnActionReceived(ActionBuffers actionBuffers)
+    {
+        // Moving agent -- change action animation based on chosen animation index
+        MoveAgent(actionBuffers.DiscreteActions);
+
+        // Add angle reward 
+        envController.AngleReward(this.team);
+
+        // Timestep penalty
+        m_agentInfo.AddReward(-1 / MAX_STEPS);
+    }
+
+    public void MoveAgent(ActionSegment<int> action)
+    {
+        // Get the action from the action buffer
+        int actionIndex = action[0];
+        if (actionIndex < 0 || actionIndex >= stateMapping.Count)
+        {
+            Debug.LogError("Invalid action index: " + actionIndex);
+            this.inputAction = "Idle"; // Default to Idle if invalid action
+        }
+        else
+        {
+            this.inputAction = Moveset[actionIndex];
+        }
+    }
+
+    // Respawning
     public Vector3 GetRandomSpawnPos()
     {
         bool foundSpawn = false;
         var randomSpawn = Vector3.zero;
-        while (!foundSpawn) {
+        while (!foundSpawn)
+        {
             randomSpawn = ground.transform.position + new Vector3(
                 UnityEngine.Random.Range(-areaBounds.extents.x * 0.9f, areaBounds.extents.x * 0.9f),
                 0f,
@@ -285,27 +452,50 @@ public class SparringAgent : Agent
         return randomSpawn;
     }
 
-    public void AddObservations(VectorSensor sensor) {}
-
-    public void MoveAgent(ActionSegment<int> action) {
-        if (isAnimating)
-            return;
-
-        // Action
-    }
-
-    private void ResetState() {}
-
-    public void Respawn() {
+    public void Respawn()
+    {
         transform.position = GetRandomSpawnPos();
         ResetState();
     }
 
-    public override void OnEpisodeBegin() {}
+    public void SetAgentInfo(SparringEnvController.AgentInfo agentInfo)
+    {
+        m_agentInfo = agentInfo;
+    }
 
-    public override void CollectObservations(VectorSensor sensor) {}
+    public void ResetAgent()
+    {
+        /*
+            This function resets the agent's default physical properties 
+        */
 
-    // public VisibleState GetVisibleState() {}
+        // Reset hits received
+        // hitsReceived = 0;
 
+        // Reset rigidbody
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+    }
 
+    public void ResetState()
+    {
+        /*
+            This function resets the agent's default state and animation (i.e. Idle)
+        */
+
+        // Reset agent state
+        currentState = idleState;
+        currentState.Enter(null);
+        inputAction = "Idle";
+        doingMove = false;
+
+        // Reset to idle animation
+        animationController.ResetToIdle(0f);
+    }
+
+    public override void OnEpisodeBegin()
+    {
+        ResetAgent();
+    }
 }

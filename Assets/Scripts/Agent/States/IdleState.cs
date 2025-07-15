@@ -6,24 +6,8 @@ using System.Linq;
 public class IdleState : AgentState 
 {
     public new string action;
-
-    private List<string> MovementList = new List<string>
-    {
-        "StepBackward",
-        "ShortStepForward",
-        "MediumStepForward",
-        "LongStepForward",
-        "ShortRightSideStep",
-        "ShortLeftSideStep",
-        "MediumRightSideStep",
-        "MediumLeftSideStep",
-        "LongRightSideStep",
-        "LongLeftSideStep",
-        "LeftPivot",
-        "RightPivot"
-    };
-
-    public IdleState(SparringAgent agent, string action) : base(agent, action) 
+    
+    public IdleState(SparringAgent agent, string action) : base(agent, action)
     {
         this.action = action;
     }
@@ -54,7 +38,7 @@ public class IdleState : AgentState
         {
             return new AttackingState(agent, action);
         }
-        else if (MovementList.Contains(action))
+        else if (this.MoveList.Contains(action))
         {
             return new MovingState(agent, action);
         }

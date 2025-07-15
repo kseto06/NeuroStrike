@@ -100,16 +100,23 @@ public class HurtboxTrigger : MonoBehaviour
     private Animator animator;
     private AnimationController animationController;
     private SparringAgent agent;
-    
-    private void Start() 
+    private SparringEnvController envController;
+
+    private void Start()
     {
         animator = GetComponentInParent<Animator>();
         animationController = GetComponentInParent<AnimationController>();
         agent = GetComponentInParent<SparringAgent>();
+        envController = GetComponentInParent<SparringEnvController>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        /*
+            Function to handle hitbox collisions with detected hurtboxes
+            Calls EnvController functions to handle hit & block rewards
+        */
+
         if (other.CompareTag("Hitbox") && !animator.GetCurrentAnimatorStateInfo(0).IsName("Block"))
         {
             Debug.Log($"Hurtbox {boxName} hit by {other.name}");
@@ -134,17 +141,22 @@ public class HurtboxTrigger : MonoBehaviour
             }
 
             if (!string.IsNullOrEmpty(hurtAction))
-            {
+            {   
+                //Assign new action
                 var agent = GetComponentInParent<SparringAgent>();
                 if (agent != null)
                 {
                     agent.inputAction = hurtAction;
                 }
+
+                //Accumulate hit rewards
+                envController.AttackLandedReward(agent.team, hurtAction);
             }
         }
         else if (other.CompareTag("Hitbox") && animator.GetCurrentAnimatorStateInfo(0).IsName("Block"))
         {
-            Debug.Log($"Blocked hit by {other.name}");
+            envController.AttackBlockedReward(agent.team, true);
+            Debug.Log($"{boxName} blocked hit by {other.name}");
         }
     }
 }

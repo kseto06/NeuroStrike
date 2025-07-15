@@ -48,7 +48,7 @@ public class AnimationController : MonoBehaviour
         resetCoroutine = StartCoroutine(ResetToIdle(clipLength));
     }
 
-    private IEnumerator ResetToIdle(float delay)
+    public IEnumerator ResetToIdle(float delay)
     {
         yield return new WaitForSeconds(delay);
         
