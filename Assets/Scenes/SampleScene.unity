@@ -255,8 +255,9 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 1000
   opponent: {fileID: 878799931}
+  team: 0
   animationController: {fileID: 54703636}
   isAnimating: 0
   rb: {fileID: 54703635}
@@ -264,6 +265,7 @@ MonoBehaviour:
   hitsReceived: 0
   hitbox: {fileID: 54703634}
   inputAction: 
+  doingMove: 0
 --- !u!114 &54703638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -277,19 +279,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 1
-    NumStackedVectorObservations: 1
+    VectorObservationSize: 18
+    NumStackedVectorObservations: 5
     m_ActionSpec:
       m_NumContinuousActions: 0
-      BranchSizes: 01000000
-    VectorActionSize: 01000000
+      BranchSizes: 25000000
+    VectorActionSize: 25000000
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
   m_Model: {fileID: 0}
   m_InferenceDevice: 0
   m_BehaviorType: 0
-  m_BehaviorName: My Behavior
+  m_BehaviorName: SparringAgent
   TeamId: 0
   m_UseChildSensors: 1
   m_UseChildActuators: 1
@@ -474,7 +476,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       propertyPath: m_Name
-      value: blue (1)
+      value: opponent
       objectReference: {fileID: 0}
     - target: {fileID: 5822821947120931875, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       propertyPath: m_Enabled
@@ -1230,7 +1232,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       propertyPath: m_Name
-      value: blue
+      value: player
       objectReference: {fileID: 0}
     - target: {fileID: 5822821947120931875, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       propertyPath: m_Enabled
@@ -1894,8 +1896,9 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 1000
   opponent: {fileID: 54703637}
+  team: 0
   animationController: {fileID: 878799930}
   isAnimating: 0
   rb: {fileID: 878799924}
@@ -1903,6 +1906,7 @@ MonoBehaviour:
   hitsReceived: 0
   hitbox: {fileID: 878799925}
   inputAction: 
+  doingMove: 0
 --- !u!114 &878799932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1916,20 +1920,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 1
-    NumStackedVectorObservations: 1
+    VectorObservationSize: 18
+    NumStackedVectorObservations: 5
     m_ActionSpec:
       m_NumContinuousActions: 0
-      BranchSizes: 01000000
-    VectorActionSize: 01000000
+      BranchSizes: 25000000
+    VectorActionSize: 25000000
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
   m_Model: {fileID: 0}
   m_InferenceDevice: 0
   m_BehaviorType: 0
-  m_BehaviorName: My Behavior
-  TeamId: 0
+  m_BehaviorName: SparringAgent
+  TeamId: 1
   m_UseChildSensors: 1
   m_UseChildActuators: 1
   m_DeterministicInference: 0
