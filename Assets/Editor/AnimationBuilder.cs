@@ -6,7 +6,6 @@ using System.IO;
 public class AnimationBuilder : EditorWindow 
 {
     private DefaultAsset animationBuilder;
-    private string controllerName = "GeneratedAnimator";
 
     [MenuItem("Tools/Build Animations from FBX")]
     static void Build() {
