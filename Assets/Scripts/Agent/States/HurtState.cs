@@ -31,6 +31,7 @@ public class HurtState : AgentState, IMoveTypeState
 
     public override void Exit(AgentState toState)
     {
+        agent.hitRegistered = false; //Reset hit registered flag exiting hurt animation
         base.Exit(toState);
     }
 

@@ -20,11 +20,11 @@ public class SparringAgent : Agent
     public SparringAgent opponent;
     [HideInInspector] public Team team;
     private BehaviorParameters behaviorParameters;
-    private const int MAX_STEPS = 1000; // Maximum steps per episode (20s)
+    private const int MAX_STEPS = 2000; // Maximum steps per episode (20s)
 
     //Env
-    private GameObject ground;
-    private GameObject area;
+    [SerializeField] private GameObject ground;
+    [SerializeField] private GameObject area;
     [HideInInspector] private Bounds areaBounds;
 
     public SparringEnvController envController
@@ -37,7 +37,7 @@ public class SparringAgent : Agent
             }
             else
             {
-                m_envController = transform.parent.GetComponent<SparringEnvController>();
+                m_envController = FindFirstObjectByType<SparringEnvController>();
                 return m_envController;
             }
         }
@@ -103,6 +103,7 @@ public class SparringAgent : Agent
     private Animator animator;
     public bool isAnimating = false; //Keeping track of animating state
     private Coroutine resetCoroutine;
+    public bool hitRegistered = false;
 
     [Header("Rigidbody")]
     public Rigidbody rb;
@@ -167,6 +168,9 @@ public class SparringAgent : Agent
         // Animation setup
         animator = GetComponent<Animator>();
         animationController = GetComponent<AnimationController>();
+
+        //Area bounds
+        areaBounds = ground.GetComponent<Collider>().bounds;
 
         if (animationController == null)
         {
@@ -401,6 +405,47 @@ public class SparringAgent : Agent
         );
     }
 
+    //Heuristic for testing
+    public override void Heuristic(in ActionBuffers actionsOut)
+    {
+        var discreteActionsOut = actionsOut.DiscreteActions;
+        discreteActionsOut[0] = 0; // Default action is Idle
+
+        // Movement:
+        if (Input.GetKeyDown(KeyCode.W)) 
+            discreteActionsOut[0] = Moveset.IndexOf("MediumStepForward");
+
+        if (Input.GetKeyDown(KeyCode.S)) 
+            discreteActionsOut[0] = Moveset.IndexOf("StepBackward");
+
+        if (Input.GetKeyDown(KeyCode.A)) 
+            discreteActionsOut[0] = Moveset.IndexOf("MediumLeftSideStep");
+
+        if (Input.GetKeyDown(KeyCode.D)) 
+            discreteActionsOut[0] = Moveset.IndexOf("MediumRightSideStep");
+
+        // Combat:
+        if (Input.GetKeyDown(KeyCode.I)) 
+            discreteActionsOut[0] = Moveset.IndexOf("Block");
+
+        if (Input.GetKeyDown(KeyCode.J))
+            discreteActionsOut[0] = Moveset.IndexOf("LeftJab");
+
+        if (Input.GetKeyDown(KeyCode.K)) 
+            discreteActionsOut[0] = Moveset.IndexOf("HighRoundhouseKick");
+
+        if (Input.GetKeyDown(KeyCode.L)) 
+            discreteActionsOut[0] = Moveset.IndexOf("LeadTeep");
+
+        if (Input.GetKeyDown(KeyCode.M)) 
+            discreteActionsOut[0] = Moveset.IndexOf("SpinningHookKick");
+
+        if (Input.GetKeyDown(KeyCode.N)) 
+            discreteActionsOut[0] = Moveset.IndexOf("ComboPunch");
+
+        if (Input.GetKeyDown(KeyCode.P))
+            discreteActionsOut[0] = Moveset.IndexOf("LowKick"); 
+    }
 
     // Sampling Actions and Getting Rewards
     public override void OnActionReceived(ActionBuffers actionBuffers)
@@ -409,7 +454,7 @@ public class SparringAgent : Agent
         MoveAgent(actionBuffers.DiscreteActions);
 
         // Add angle reward 
-        envController.AngleReward(this.team);
+        envController.AngleReward(this.team / MAX_STEPS * 10f);
 
         // Timestep penalty
         m_agentInfo.AddReward(-1 / MAX_STEPS);
@@ -430,31 +475,14 @@ public class SparringAgent : Agent
         }
     }
 
-    // Respawning
-    public Vector3 GetRandomSpawnPos()
-    {
-        bool foundSpawn = false;
-        var randomSpawn = Vector3.zero;
-        while (!foundSpawn)
-        {
-            randomSpawn = ground.transform.position + new Vector3(
-                UnityEngine.Random.Range(-areaBounds.extents.x * 0.9f, areaBounds.extents.x * 0.9f),
-                0f,
-                UnityEngine.Random.Range(-areaBounds.extents.z * 0.9f, areaBounds.extents.z * 0.9f)
-            );
-
-            if (Vector3.Distance(randomSpawn, opponent.transform.position) > 2f)
-            {
-                foundSpawn = true;
-            }
-        }
-
-        return randomSpawn;
-    }
-
+    //Respawning -- set back default positions
     public void Respawn()
     {
-        transform.position = GetRandomSpawnPos();
+        transform.position = m_agentInfo.StartingPos;
+        Vector3 pos = transform.position;
+        pos.y += 0.2f; // Ensure the agent is above the ground
+        transform.position = pos;
+        transform.rotation = m_agentInfo.StartingRot;
         ResetState();
     }
 
@@ -488,7 +516,11 @@ public class SparringAgent : Agent
         currentState = idleState;
         currentState.Enter(null);
         inputAction = "Idle";
+        isAnimating = false;
+
+        // Reset triggers
         doingMove = false;
+        hitRegistered = false;
 
         // Reset to idle animation
         animationController.ResetToIdle(0f);

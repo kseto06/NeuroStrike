@@ -53,6 +53,7 @@ public class AttackingState : AgentState, IMoveTypeState
     public override void Exit(AgentState toState)
     {
         agent.animationController.animator.applyRootMotion = true;
+        agent.hitRegistered = false; //Reset hit registered flag finishing attack animation
         base.Exit(toState);
     }
 

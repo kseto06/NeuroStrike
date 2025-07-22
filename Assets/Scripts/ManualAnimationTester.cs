@@ -63,5 +63,12 @@ public class ManualAnimationTester : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.M)) 
             agent.inputAction = "SpinningHookKick";
+
+        if (Input.GetKeyDown(KeyCode.N)) 
+            agent.inputAction = "ComboPunch";
+
+        if (Input.GetKeyDown(KeyCode.P)) 
+            agent.inputAction = "LowKick";
+
     }
 }

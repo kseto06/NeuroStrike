@@ -107,8 +107,13 @@ public class HurtboxTrigger : MonoBehaviour
         animator = GetComponentInParent<Animator>();
         animationController = GetComponentInParent<AnimationController>();
         agent = GetComponentInParent<SparringAgent>();
-        envController = GetComponentInParent<SparringEnvController>();
+        envController = agent.envController;
     }
+
+    // private void Awake()
+    // {
+    //     envController = GetComponentInParent<SparringEnvController>();
+    // }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -117,7 +122,7 @@ public class HurtboxTrigger : MonoBehaviour
             Calls EnvController functions to handle hit & block rewards
         */
 
-        if (other.CompareTag("Hitbox") && !animator.GetCurrentAnimatorStateInfo(0).IsName("Block"))
+        if (other.CompareTag("Hitbox") && !animator.GetCurrentAnimatorStateInfo(0).IsName("Block") && agent != null && !agent.hitRegistered)
         {
             Debug.Log($"Hurtbox {boxName} hit by {other.name}");
 
@@ -142,14 +147,23 @@ public class HurtboxTrigger : MonoBehaviour
 
             if (!string.IsNullOrEmpty(hurtAction))
             {   
-                //Assign new action
+                // Assign new action
                 var agent = GetComponentInParent<SparringAgent>();
                 if (agent != null)
                 {
                     agent.inputAction = hurtAction;
                 }
 
-                //Accumulate hit rewards
+                // Error checking
+                if (envController == null)
+                    Debug.LogError("envController is null");
+                if (agent == null)
+                    Debug.LogError("agent is null");
+                if (hurtAction == null)
+                    Debug.LogError("hurtAction is null");
+
+                // Accumulate hit rewards & register hit
+                agent.hitRegistered = true;
                 envController.AttackLandedReward(agent.team, hurtAction);
             }
         }

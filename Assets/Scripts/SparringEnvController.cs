@@ -6,7 +6,7 @@ using UnityEngine;
 public class SparringEnvController : MonoBehaviour
 {
     [Header("Env Params")]
-    private const int MAX_STEPS = 1000;
+    private const int MAX_STEPS = 2000;
 
     [SerializeField]
     public int totalSteps
@@ -58,6 +58,17 @@ public class SparringEnvController : MonoBehaviour
 
     private AgentInfo m_playerAgent;
     private AgentInfo m_opponentAgent;
+
+    void Awake()
+    {
+        //Initializing default values
+        foreach (var agentInfo in AgentList)
+        {
+            agentInfo.StartingPos = agentInfo.agent.transform.position;
+            agentInfo.StartingRot = agentInfo.agent.transform.rotation;
+            agentInfo.Rb = agentInfo.agent.GetComponent<Rigidbody>();
+        }
+    }
 
     void Start()
     {
@@ -111,23 +122,6 @@ public class SparringEnvController : MonoBehaviour
             ResetEnv();
         }
     }
-
-    // public void ComputeGlobalRewards()
-    // {
-    //     //Add reward functions here and provide cumulative reward
-    //     float reward = 0f;
-
-    //     // Shape: Angle to opponent (higher angle => more advantageous position)
-    //     reward += Math.Abs(Vector3.SignedAngle(Vector3.ProjectOnPlane(transform.forward, Vector3.up),
-    //                         Vector3.ProjectOnPlane(m_opponentAgent.agent.transform.localPosition - m_playerAgent.agent.transform.localPosition, Vector3.up).normalized,
-    //                         Vector3.up) / 180f);
-
-    //     // Shape: Hits received (aim is to get more aggressive as the agent gets hit more)
-    //     reward -= hitsReceived * 0.1f;
-
-    //     m_playerAgent.AddReward(reward);
-    //     m_opponentAgent.AddReward(-reward);
-    // }
 
     public void AngleReward(Team team)
     {
@@ -247,6 +241,7 @@ public class SparringEnvController : MonoBehaviour
             agentInfo.totalReward = 0f;
             agentInfo.agent.SetAgentInfo(agentInfo);
             agentInfo.agent.ResetAgent();
+            agentInfo.agent.Respawn();
         }
     }
 }
