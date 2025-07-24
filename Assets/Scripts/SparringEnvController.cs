@@ -38,6 +38,8 @@ public class SparringEnvController : MonoBehaviour
     }
     public int m_stepsRemaining;
 
+    public int episodeCount = 0;
+
     [System.Serializable]
     public class AgentInfo
     {
@@ -57,7 +59,9 @@ public class SparringEnvController : MonoBehaviour
     public List<AgentInfo> AgentList = new List<AgentInfo>();
 
     private AgentInfo m_playerAgent;
+    public AgentInfo PlayerAgentInfo => m_playerAgent;
     private AgentInfo m_opponentAgent;
+    public AgentInfo OpponentAgentInfo => m_opponentAgent;
 
     void Awake()
     {
@@ -120,6 +124,7 @@ public class SparringEnvController : MonoBehaviour
             m_playerAgent.agent.EpisodeInterrupted();
             m_opponentAgent.agent.EpisodeInterrupted();
             ResetEnv();
+            episodeCount++;
         }
     }
 
@@ -133,20 +138,42 @@ public class SparringEnvController : MonoBehaviour
 
         if (team == Team.Player)
         {
-            angleReward = Math.Abs(Vector3.SignedAngle(Vector3.ProjectOnPlane(m_opponentAgent.agent.transform.forward, Vector3.up),
-                                              Vector3.ProjectOnPlane(m_opponentAgent.agent.transform.localPosition - m_playerAgent.agent.transform.localPosition, Vector3.up).normalized,
-                                              Vector3.up) / 180f);
+            // angleReward = Math.Abs(Vector3.SignedAngle(Vector3.ProjectOnPlane(m_opponentAgent.agent.transform.forward, Vector3.up),
+            //                                   Vector3.ProjectOnPlane(m_opponentAgent.agent.transform.localPosition - m_playerAgent.agent.transform.localPosition, Vector3.up).normalized,
+            //                                   Vector3.up) / 180f);
+            angleReward = ComputeNormalizedAngle(m_playerAgent.agent.transform, m_opponentAgent.agent.transform) / 180f;
+            angleReward /= MAX_STEPS; // Normalize by max steps
             m_playerAgent.AddReward(angleReward);
-            m_opponentAgent.AddReward(-angleReward);
+            //m_opponentAgent.AddReward(-angleReward);
         }
         else
         {
-            angleReward = Math.Abs(Vector3.SignedAngle(Vector3.ProjectOnPlane(transform.forward, Vector3.up),
-                                               Vector3.ProjectOnPlane(m_playerAgent.agent.transform.localPosition - m_opponentAgent.agent.transform.localPosition, Vector3.up).normalized,
-                                               Vector3.up) / 180f);
+            // angleReward = Math.Abs(Vector3.SignedAngle(Vector3.ProjectOnPlane(m_playerAgent.agent.transform.forward, Vector3.up),
+            //                                    Vector3.ProjectOnPlane(m_playerAgent.agent.transform.localPosition - m_opponentAgent.agent.transform.localPosition, Vector3.up).normalized,
+            //                                    Vector3.up) / 180f);
+            angleReward = ComputeNormalizedAngle(m_opponentAgent.agent.transform, m_playerAgent.agent.transform) / 180f;
+            angleReward /= MAX_STEPS; // Normalize by max steps
             m_opponentAgent.AddReward(angleReward);
-            m_playerAgent.AddReward(-angleReward);
+            //m_playerAgent.AddReward(-angleReward);
         }
+    }
+
+    private float ComputeNormalizedAngle(Transform playerTransform, Transform opponentTransform) 
+    {
+        Vector3 forwardDir = playerTransform.forward;
+        forwardDir.y = 0; //ignore vertical component
+        forwardDir.Normalize();
+
+        Vector3 direction = opponentTransform.position - playerTransform.position;
+        direction.y = 0;
+        direction.Normalize();
+
+        // Return negative angle to punish the agent for facing away
+        float angle = -Vector3.Angle(
+            forwardDir,
+            direction
+        );
+        return angle / 180f;
     }
 
     // public void HitsReceivedReward(Team team)
@@ -182,15 +209,15 @@ public class SparringEnvController : MonoBehaviour
 
         if (hitType == "HeadHit")
         {
-            reward = -5.0f; // Reward for head hit
+            reward = -5.5f; // Reward for head hit
         }
         else if (hitType == "LeftSideHit" || hitType == "RightSideHit")
         {
-            reward = -3.5f; // Reward for body hit
+            reward = -4.5f; // Reward for side hits
         }
-        else if (hitType == "LegHit")
+        else if (hitType == "BodyHit")
         {
-            reward = -4.0f; // Reward for leg hit
+            reward = -4.0f; // Reward for body hit
         }
 
         if (hitTeam == Team.Player)
@@ -218,13 +245,13 @@ public class SparringEnvController : MonoBehaviour
         {
             if (hitTeam == Team.Player)
             {
-                m_playerAgent.AddReward(1.0f);
-                m_opponentAgent.AddReward(-0.1f);
+                m_playerAgent.AddReward(4.0f);
+                m_opponentAgent.AddReward(-0.5f);
             }
             else
             {
-                m_playerAgent.AddReward(-0.1f);
-                m_opponentAgent.AddReward(1.0f);
+                m_playerAgent.AddReward(-0.5f);
+                m_opponentAgent.AddReward(4.0f);
             }
         }
     }
