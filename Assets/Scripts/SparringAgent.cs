@@ -37,7 +37,7 @@ public class SparringAgent : Agent
             }
             else
             {
-                m_envController = FindFirstObjectByType<SparringEnvController>();
+                m_envController = transform.root.GetComponentInChildren<SparringEnvController>();
                 return m_envController;
             }
         }
@@ -112,7 +112,6 @@ public class SparringAgent : Agent
     [SerializeField] private Hurtbox hurtbox;
     public int hitsReceived = 0;
     [SerializeField] private Hitbox hitbox;
-    private Dictionary<string, int> hitboxRewards;
 
     [Header("FSM")]
     //Current state of the agent
@@ -454,17 +453,17 @@ public class SparringAgent : Agent
         MoveAgent(actionBuffers.DiscreteActions);
 
         // Add angle reward 
-        envController.AngleReward(this.team / MAX_STEPS * 10f);
+        envController.AngleReward(this.team);
 
         // Timestep penalty
-        m_agentInfo.AddReward(-1 / MAX_STEPS);
+        m_agentInfo.AddReward(-1f / MAX_STEPS);
     }
 
     public void MoveAgent(ActionSegment<int> action)
     {
         // Get the action from the action buffer
         int actionIndex = action[0];
-        if (actionIndex < 0 || actionIndex >= stateMapping.Count)
+        if (actionIndex < 0 || actionIndex >= Moveset.Count)
         {
             Debug.LogError("Invalid action index: " + actionIndex);
             this.inputAction = "Idle"; // Default to Idle if invalid action
