@@ -40,4 +40,4 @@ behaviors:
       play_against_latest_model_ratio: 0.6
       initial_elo: 1200.0
 env_settings:
-  num_areas: 12
+  num_areas: 24
