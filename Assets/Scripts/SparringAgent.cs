@@ -474,14 +474,94 @@ public class SparringAgent : Agent
         }
     }
 
+    private Vector3 GetRandomSpawnPos()
+    {
+        bool foundSpawn = false;
+        var randomSpawn = Vector3.zero;
+        const int maxAttempts = 50;
+        const float spawnAreaMarginMultipler = 0.9f;
+
+        //error checking
+        if (ground == null)
+        {
+            Debug.LogError("ground is null in GetRandomSpawnPos");
+        }
+
+        // Ensure bounds are calculated
+        if (areaBounds.size == Vector3.zero)
+        {
+            Debug.LogWarning("areaBounds not set, calculating from ground collider");
+            var collider = ground.GetComponent<Collider>();
+            if (collider != null)
+            {
+                areaBounds = collider.bounds;
+            }
+            else
+            {
+                Debug.LogError("collider not found on area");
+                return Vector3.zero;
+            }
+        }
+
+        //Getting the spawn position within max attempts
+        for (int attempts = 0; attempts < maxAttempts; attempts++)
+        {
+            randomSpawn = ground.transform.position + new Vector3(
+                UnityEngine.Random.Range(-areaBounds.extents.x * spawnAreaMarginMultipler, areaBounds.extents.x * spawnAreaMarginMultipler),
+                0.1f,
+                UnityEngine.Random.Range(-areaBounds.extents.z * spawnAreaMarginMultipler, areaBounds.extents.z * spawnAreaMarginMultipler)
+            );
+
+            if (randomSpawn != null)
+            {
+                foundSpawn = true;
+                break;
+            }
+        }
+
+        //Report invalid spawn point and set default spawn positions for player and opponent
+        if (!foundSpawn)
+        {
+            if (behaviorParameters != null && behaviorParameters.TeamId == (int)Team.Player)
+            {
+                //Player spawn point
+                randomSpawn = area.transform.position + new Vector3(2.3f, 0.1f, 0.371f);
+                Debug.LogWarning("Invalid spawn point, resetting Player default spawn");
+            }
+            else if (behaviorParameters != null && behaviorParameters.TeamId == (int)Team.Opponent)
+            {
+                //Opponent spawn point
+                randomSpawn = area.transform.position + new Vector3(-1f, 0.1f, 0.371f);
+                Debug.LogWarning("Invalid spawn point, resetting Opponent default spawn");
+            }
+
+            // Transform local offset to world space
+            randomSpawn = area.transform.TransformPoint(randomSpawn);
+
+            // Clamp to area bounds using ClosestPoint
+            randomSpawn = areaBounds.ClosestPoint(randomSpawn);
+        }
+
+        return randomSpawn;
+    }
+
+    private Quaternion GetRandomSpawnRot()
+    {
+        // Randomly choose a Y-axis rotation between 0 and 360 degrees
+        float randomY = UnityEngine.Random.Range(0f, 360f);
+        return Quaternion.Euler(0f, randomY, 0f);
+    }
+
     //Respawning -- set back default positions
     public void Respawn()
     {
         transform.position = m_agentInfo.StartingPos;
-        Vector3 pos = transform.position;
+        //Vector3 pos = transform.position;
+        Vector3 pos = GetRandomSpawnPos();
         pos.y += 0.2f; // Ensure the agent is above the ground
         transform.position = pos;
-        transform.rotation = m_agentInfo.StartingRot;
+        //transform.rotation = m_agentInfo.StartingRot;
+        transform.rotation = GetRandomSpawnRot();
         ResetState();
     }
 
