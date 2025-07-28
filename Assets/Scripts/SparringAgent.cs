@@ -337,10 +337,22 @@ public class SparringAgent : Agent
             sensor.AddObservation(this.localPosition.y);
 
             // Perception params -- distance and angle to opponent
-            sensor.AddObservation(Vector3.SignedAngle(Vector3.ProjectOnPlane(this.facingDirection, Vector3.up),
-                                Vector3.ProjectOnPlane(this.opponentPosition - this.localPosition, Vector3.up).normalized,
-                                Vector3.up) / 180f);
+            Vector3 forwardDir = this.facingDirection;
+            forwardDir.y = 0; //ignore vertical component
+            forwardDir = forwardDir.normalized;
 
+            Vector3 direction = this.opponentPosition - this.localPosition;
+            direction.y = 0;
+            direction = direction.normalized;
+
+            float angle = Vector3.Angle(
+                forwardDir,
+                direction
+            );
+            sensor.AddObservation(angle / 180f); //Normalized angle to opponent
+
+
+            // Distance to opponent
             sensor.AddObservation(Vector3.Distance(this.localPosition, this.opponentPosition)); //Distance to opponent
 
             // Agent state
@@ -370,20 +382,6 @@ public class SparringAgent : Agent
 
             // Hits
             sensor.AddObservation(this.hitsReceived);
-
-            // Maybe add time later
-
-            // // Add distance to opponent
-            // float distanceToOpponent = Vector3.Distance(transform.position, opponent.transform.position);
-            // sensor.AddObservation(distanceToOpponent);
-
-            // // Add angle to opponent
-            // Vector3 directionToOpponent = (opponent.transform.position - transform.position).normalized;
-            // float angleToOpponent = Vector3.Angle(transform.forward, directionToOpponent);
-            // sensor.AddObservation(angleToOpponent);
-
-            // // Add current animation state
-            // sensor.AddObservation(animationController.GetCurrentAnimation());
         }
     }
 
@@ -596,13 +594,15 @@ public class SparringAgent : Agent
         currentState.Enter(null);
         inputAction = "Idle";
         isAnimating = false;
+        hitbox.DeactivateHitboxes();
 
         // Reset triggers
         doingMove = false;
         hitRegistered = false;
 
-        // Reset to idle animation
-        animationController.ResetToIdle(0f);
+        // Hard reset to idle animation
+        // animationController.ResetToIdle(0f);
+        animationController.Play("Idle", overrideAnimation: true);
     }
 
     public override void OnEpisodeBegin()

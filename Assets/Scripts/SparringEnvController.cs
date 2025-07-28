@@ -138,23 +138,13 @@ public class SparringEnvController : MonoBehaviour
 
         if (team == Team.Player)
         {
-            // angleReward = Math.Abs(Vector3.SignedAngle(Vector3.ProjectOnPlane(m_opponentAgent.agent.transform.forward, Vector3.up),
-            //                                   Vector3.ProjectOnPlane(m_opponentAgent.agent.transform.localPosition - m_playerAgent.agent.transform.localPosition, Vector3.up).normalized,
-            //                                   Vector3.up) / 180f);
             angleReward = ComputeNormalizedAngle(m_playerAgent.agent.transform, m_opponentAgent.agent.transform) / 180f;
-            angleReward /= MAX_STEPS; // Normalize by max steps
-            m_playerAgent.AddReward(angleReward);
-            //m_opponentAgent.AddReward(-angleReward);
+            m_playerAgent.AddReward(angleReward / 10f);
         }
         else
         {
-            // angleReward = Math.Abs(Vector3.SignedAngle(Vector3.ProjectOnPlane(m_playerAgent.agent.transform.forward, Vector3.up),
-            //                                    Vector3.ProjectOnPlane(m_playerAgent.agent.transform.localPosition - m_opponentAgent.agent.transform.localPosition, Vector3.up).normalized,
-            //                                    Vector3.up) / 180f);
             angleReward = ComputeNormalizedAngle(m_opponentAgent.agent.transform, m_playerAgent.agent.transform) / 180f;
-            angleReward /= MAX_STEPS; // Normalize by max steps
-            m_opponentAgent.AddReward(angleReward);
-            //m_playerAgent.AddReward(-angleReward);
+            m_opponentAgent.AddReward(angleReward / 10f);
         }
     }
 
@@ -162,11 +152,11 @@ public class SparringEnvController : MonoBehaviour
     {
         Vector3 forwardDir = playerTransform.forward;
         forwardDir.y = 0; //ignore vertical component
-        forwardDir.Normalize();
+        forwardDir = forwardDir.normalized;
 
         Vector3 direction = opponentTransform.position - playerTransform.position;
         direction.y = 0;
-        direction.Normalize();
+        direction = direction.normalized;
 
         // Return negative angle to punish the agent for facing away
         float angle = -Vector3.Angle(
@@ -175,27 +165,6 @@ public class SparringEnvController : MonoBehaviour
         );
         return angle / 180f;
     }
-
-    // public void HitsReceivedReward(Team team)
-    // {
-    //     /*
-    //         Function to handle rewards based on hits received
-    //         Goal is to influence agents to be more aggressive as they take more hits
-    //         This function should be called from the SparringAgent script when hits are received
-    //     */
-    //     float hitsReceivedReward = 0f;
-
-    //     if (team == Team.Player)
-    //     {
-    //         hitsReceivedReward = -m_playerAgent.agent.hitsReceived * (1 / MAX_STEPS);
-    //         m_playerAgent.AddReward(hitsReceivedReward);
-    //     }
-    //     else
-    //     {
-    //         hitsReceivedReward = -m_opponentAgent.agent.hitsReceived * (1 / MAX_STEPS);
-    //         m_opponentAgent.AddReward(hitsReceivedReward);
-    //     }
-    // }
 
     public void AttackLandedReward(Team hitTeam, string hitType)
     {
@@ -246,11 +215,11 @@ public class SparringEnvController : MonoBehaviour
             if (hitTeam == Team.Player)
             {
                 m_playerAgent.AddReward(4.0f);
-                m_opponentAgent.AddReward(-0.5f);
+                m_opponentAgent.AddReward(-1.0f);
             }
             else
             {
-                m_playerAgent.AddReward(-0.5f);
+                m_playerAgent.AddReward(-1.0f);
                 m_opponentAgent.AddReward(4.0f);
             }
         }
