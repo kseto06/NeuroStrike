@@ -48,6 +48,12 @@ public class ManualAnimationTester : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.D)) 
             agent.inputAction = "MediumRightSideStep";
 
+        if (Input.GetKeyDown(KeyCode.Q))
+            agent.inputAction = "LeftPivot";
+        
+        if (Input.GetKeyDown(KeyCode.E))
+            agent.inputAction = "RightPivot";
+
         // Combat:
         if (Input.GetKeyDown(KeyCode.I)) 
             agent.inputAction = "Block";
@@ -69,6 +75,11 @@ public class ManualAnimationTester : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.P)) 
             agent.inputAction = "LowKick";
+        
+        if (Input.GetKeyDown(KeyCode.H))
+            agent.inputAction = "SideKick";
 
+        if (Input.GetKeyDown(KeyCode.Period))
+            agent.inputAction = "RearTeep";
     }
 }
