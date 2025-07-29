@@ -59,7 +59,10 @@ public class ManualAnimationTester : MonoBehaviour
             agent.inputAction = "Block";
 
         if (Input.GetKeyDown(KeyCode.J))
-            agent.inputAction = "LeftJab";
+            agent.inputAction = "LeftCross";
+
+        if (Input.GetKeyDown(KeyCode.Semicolon)) 
+            agent.inputAction = "RightCross";
 
         if (Input.GetKeyDown(KeyCode.K)) 
             agent.inputAction = "HighRoundhouseKick";

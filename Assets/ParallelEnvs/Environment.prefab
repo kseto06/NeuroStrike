@@ -1126,7 +1126,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 16
+    VectorObservationSize: 18
     NumStackedVectorObservations: 5
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -1565,7 +1565,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.35
+  m_Radius: 0.15
   m_Height: 1.8758471
   m_Direction: 1
   m_Center: {x: -0.000048495855, y: 0.9, z: 0.011433954}
@@ -2459,7 +2459,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 16
+    VectorObservationSize: 18
     NumStackedVectorObservations: 5
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -2852,7 +2852,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.35
+  m_Radius: 0.15
   m_Height: 1.8758471
   m_Direction: 1
   m_Center: {x: -0.000048495855, y: 0.9, z: 0.011433954}

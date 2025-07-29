@@ -20,7 +20,7 @@ public class SparringAgent : Agent
     public SparringAgent opponent;
     [HideInInspector] public Team team;
     private BehaviorParameters behaviorParameters;
-    private const int MAX_STEPS = 2000; // Maximum steps per episode (20s)
+    private const int MAX_STEPS = 2500; // Maximum steps per episode (20s)
 
     //Env
     [SerializeField] private GameObject ground;
@@ -335,6 +335,7 @@ public class SparringAgent : Agent
             // Agent position 
             sensor.AddObservation(this.localPosition.x);
             sensor.AddObservation(this.localPosition.y);
+            sensor.AddObservation(this.localPosition.z);
 
             // Perception params -- distance and angle to opponent
             Vector3 forwardDir = this.facingDirection;
@@ -447,6 +448,12 @@ public class SparringAgent : Agent
     // Sampling Actions and Getting Rewards
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
+        // Short delay to allow env processing to prevent immediate action
+        if (envController.totalSteps < 50)
+        {
+            return;
+        }
+
         // Moving agent -- change action animation based on chosen animation index
         MoveAgent(actionBuffers.DiscreteActions);
 
