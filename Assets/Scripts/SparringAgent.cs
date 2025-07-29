@@ -459,9 +459,6 @@ public class SparringAgent : Agent
 
         // Add angle reward 
         envController.AngleReward(this.team);
-
-        // Timestep penalty
-        m_agentInfo.AddReward(-1f / MAX_STEPS);
     }
 
     public void MoveAgent(ActionSegment<int> action)

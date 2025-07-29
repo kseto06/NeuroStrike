@@ -167,8 +167,9 @@ public class HurtboxTrigger : MonoBehaviour
                 envController.AttackLandedReward(agent.team, hurtAction);
             }
         }
-        else if (other.CompareTag("Hitbox") && animator.GetCurrentAnimatorStateInfo(0).IsName("Block"))
+        else if (other.CompareTag("Hitbox") && animator.GetCurrentAnimatorStateInfo(0).IsName("Block") && !agent.hitRegistered)
         {
+            agent.hitRegistered = true;
             envController.AttackBlockedReward(agent.team, true);
             Debug.Log($"{boxName} blocked hit by {other.name}");
         }

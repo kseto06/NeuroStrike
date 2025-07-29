@@ -49,6 +49,13 @@ public class SparringEnvController : MonoBehaviour
         [HideInInspector] public Rigidbody Rb;
         public float totalReward;
 
+        // Partial rewards for logging
+        [HideInInspector] public float distanceReward = 0f;
+        [HideInInspector] public float angleReward = 0f;
+        [HideInInspector] public float hitsReward = 0f;
+        [HideInInspector] public float hurtReward = 0f;
+        [HideInInspector] public float blockReward = 0f;
+
         public void AddReward(float reward)
         {
             agent.AddReward(reward);
@@ -63,6 +70,9 @@ public class SparringEnvController : MonoBehaviour
     private AgentInfo m_opponentAgent;
     public AgentInfo OpponentAgentInfo => m_opponentAgent;
 
+    //Stats recorder for logging
+    private StatsRecorder statsRecorder;
+
     void Awake()
     {
         //Initializing default values
@@ -72,6 +82,9 @@ public class SparringEnvController : MonoBehaviour
             agentInfo.StartingRot = agentInfo.agent.transform.rotation;
             agentInfo.Rb = agentInfo.agent.GetComponent<Rigidbody>();
         }
+
+        //Initialize stats recorder
+        statsRecorder = Academy.Instance.StatsRecorder;
     }
 
     void Start()
@@ -126,6 +139,46 @@ public class SparringEnvController : MonoBehaviour
             ResetEnv();
             episodeCount++;
         }
+        else 
+        {
+            float distReward = DistanceReward(
+                Vector3.Distance(m_playerAgent.agent.transform.position, m_opponentAgent.agent.transform.position)
+            );
+            m_playerAgent.distanceReward += distReward;
+            m_opponentAgent.distanceReward += distReward;
+            m_playerAgent.AddReward(distReward);
+            m_opponentAgent.AddReward(distReward);
+        }
+    }
+
+    private float DistanceReward(float distance, float optimal_dist = 0.7f, float a = 1.4f)
+    {
+        /*
+            Function to compute a piecewise log function based on distance between agents
+            Will penalize agents for being too far or too close, aiming to keep them at the most optimal striking distance
+            Hyperparameters:
+            - optimal_dist: Set optimal distance for striking
+            - a: Vertical stretching/compressing factor for the log function
+        */
+        distance = Mathf.Max(distance, 0.01f);  //avoid log(0)
+        float reward = distance / optimal_dist; //compute ratio
+
+        if (distance < optimal_dist)
+        {
+            reward = a * Mathf.Log(reward);
+        }
+        else if (distance > optimal_dist)
+        {
+            reward = -a * Mathf.Log(reward);
+        }
+        else
+        {
+            //Optimal distance, neutral reward
+            reward = 0f;
+        }
+
+        // Return normalized reward by max steps for existential reward
+        return reward / MAX_STEPS; 
     }
 
     public void AngleReward(Team team)
@@ -139,11 +192,13 @@ public class SparringEnvController : MonoBehaviour
         if (team == Team.Player)
         {
             angleReward = ComputeNormalizedAngle(m_playerAgent.agent.transform, m_opponentAgent.agent.transform) / 180f;
+            m_playerAgent.angleReward += angleReward;
             m_playerAgent.AddReward(angleReward / 10f);
         }
         else
         {
             angleReward = ComputeNormalizedAngle(m_opponentAgent.agent.transform, m_playerAgent.agent.transform) / 180f;
+            m_opponentAgent.angleReward += angleReward;
             m_opponentAgent.AddReward(angleReward / 10f);
         }
     }
@@ -191,11 +246,15 @@ public class SparringEnvController : MonoBehaviour
 
         if (hitTeam == Team.Player)
         {
+            m_playerAgent.hurtReward += reward;
+            m_opponentAgent.hitsReward -= reward;
             m_playerAgent.AddReward(reward);
             m_opponentAgent.AddReward(-reward);
         }
         else
         {
+            m_playerAgent.hitsReward -= reward;
+            m_opponentAgent.hurtReward += reward;
             m_playerAgent.AddReward(-reward);
             m_opponentAgent.AddReward(reward);
         }
@@ -214,12 +273,18 @@ public class SparringEnvController : MonoBehaviour
         {
             if (hitTeam == Team.Player)
             {
+                m_playerAgent.blockReward += 4.0f;
                 m_playerAgent.AddReward(4.0f);
-                m_opponentAgent.AddReward(-1.0f);
+
+                m_opponentAgent.hitsReward += 1.0f;
+                m_opponentAgent.AddReward(1.0f);
             }
             else
             {
-                m_playerAgent.AddReward(-1.0f);
+                m_playerAgent.hitsReward += 1.0f;
+                m_playerAgent.AddReward(1.0f);
+
+                m_opponentAgent.blockReward += 4.0f;
                 m_opponentAgent.AddReward(4.0f);
             }
         }
@@ -233,8 +298,22 @@ public class SparringEnvController : MonoBehaviour
         //Reset agents
         foreach (AgentInfo agentInfo in AgentList)
         {
+            // Stats recorder logging -- partial rewards
+            statsRecorder.Add("Rewards/CumulativeDistanceReward", agentInfo.distanceReward);
+            statsRecorder.Add("Rewards/CumulativeAngleReward", agentInfo.angleReward);
+            statsRecorder.Add("Rewards/CumulativeHitsReward", agentInfo.hitsReward);
+            statsRecorder.Add("Rewards/CumulativeHurtReward", agentInfo.hurtReward);
+            statsRecorder.Add("Rewards/CumulativeBlockReward", agentInfo.blockReward);
+
+            // Performance metrics -- resetting rewards
             agentInfo.agent.hitsReceived = 0;
             agentInfo.totalReward = 0f;
+            agentInfo.distanceReward = 0f;
+            agentInfo.angleReward = 0f;
+            agentInfo.hitsReward = 0f;
+            agentInfo.blockReward = 0f;
+
+            // Reset agent position and rotation
             agentInfo.agent.SetAgentInfo(agentInfo);
             agentInfo.agent.ResetAgent();
             agentInfo.agent.Respawn();
