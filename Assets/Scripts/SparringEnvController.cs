@@ -142,7 +142,7 @@ public class SparringEnvController : MonoBehaviour
         else 
         {
             float distReward = DistanceReward(
-                Vector3.Distance(m_playerAgent.agent.transform.position, m_opponentAgent.agent.transform.position)
+                Vector3.Distance(m_playerAgent.agent.transform.localPosition, m_opponentAgent.agent.transform.localPosition)
             );
             m_playerAgent.distanceReward += distReward;
             m_opponentAgent.distanceReward += distReward;
@@ -178,47 +178,50 @@ public class SparringEnvController : MonoBehaviour
         }
 
         // Return normalized reward by max steps for existential reward
+        // Debug.Log($"Env: {m_playerAgent.agent.area.name} -- Player Distance Reward: {reward / MAX_STEPS}");
         return reward / MAX_STEPS; 
     }
 
     public void AngleReward(Team team)
     {
         /*
-            Function to handle rewards based on the angle to the opponent
+            Function to handle existential rewards based on the angle to the opponent
             This function should be called from the SparringAgent script when the angle is calculated
         */
         float angleReward = 0f;
 
         if (team == Team.Player)
         {
-            angleReward = ComputeNormalizedAngle(m_playerAgent.agent.transform, m_opponentAgent.agent.transform) / 180f;
-            m_playerAgent.angleReward += angleReward;
-            m_playerAgent.AddReward(angleReward / 10f);
+            angleReward = ComputeNormalizedAngle(m_playerAgent.agent.transform, m_opponentAgent.agent.transform);
+            //Debug.Log($"Env: {m_playerAgent.agent.area.name} -- Player Angle Reward: {angleReward / 1000f}");
+            m_playerAgent.angleReward += angleReward / 1000f;
+            m_playerAgent.AddReward(angleReward / 1000f);
         }
         else
         {
-            angleReward = ComputeNormalizedAngle(m_opponentAgent.agent.transform, m_playerAgent.agent.transform) / 180f;
-            m_opponentAgent.angleReward += angleReward;
-            m_opponentAgent.AddReward(angleReward / 10f);
+            angleReward = ComputeNormalizedAngle(m_opponentAgent.agent.transform, m_playerAgent.agent.transform);
+            //Debug.Log($"Env: {m_opponentAgent.agent.area.name} -- Opponent Angle Reward: {angleReward / MAX_STEPS * 10f}");
+            m_opponentAgent.angleReward += angleReward / 1000f;
+            m_opponentAgent.AddReward(angleReward / 1000f);
         }
     }
 
     private float ComputeNormalizedAngle(Transform playerTransform, Transform opponentTransform) 
     {
-        Vector3 forwardDir = playerTransform.forward;
+        Vector3 forwardDir = playerTransform.Find("mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:Neck/mixamorig:Head").forward;
         forwardDir.y = 0; //ignore vertical component
         forwardDir = forwardDir.normalized;
 
-        Vector3 direction = opponentTransform.position - playerTransform.position;
+        Vector3 direction = opponentTransform.localPosition - playerTransform.localPosition;
         direction.y = 0;
         direction = direction.normalized;
 
-        // Return negative angle to punish the agent for facing away
-        float angle = -Vector3.Angle(
+        // Return normalized [-1, 1] negative angle to punish the agent for facing away
+        float angle = Vector3.Angle(
             forwardDir,
             direction
         );
-        return angle / 180f;
+        return -(angle / 180f);
     }
 
     public void AttackLandedReward(Team hitTeam, string hitType)

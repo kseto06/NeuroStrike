@@ -24,7 +24,7 @@ public class SparringAgent : Agent
 
     //Env
     [SerializeField] private GameObject ground;
-    [SerializeField] private GameObject area;
+    [SerializeField] public GameObject area;
     [HideInInspector] private Bounds areaBounds;
 
     public SparringEnvController envController
@@ -315,7 +315,6 @@ public class SparringAgent : Agent
 
             //Hits
             int hitsReceived
-
         )
         {
             this.localPosition = localPosition;
@@ -334,7 +333,7 @@ public class SparringAgent : Agent
         {
             // Agent position 
             sensor.AddObservation(this.localPosition.x);
-            sensor.AddObservation(this.localPosition.y);
+            // sensor.AddObservation(this.localPosition.y);
             sensor.AddObservation(this.localPosition.z);
 
             // Perception params -- distance and angle to opponent
@@ -346,12 +345,13 @@ public class SparringAgent : Agent
             direction.y = 0;
             direction = direction.normalized;
 
-            float angle = Vector3.Angle(
+            // Normalized signed angle to opponent for rotational and directional context
+            float signedAngle = Vector3.SignedAngle(
                 forwardDir,
-                direction
+                direction,
+                Vector3.up
             );
-            sensor.AddObservation(angle / 180f); //Normalized angle to opponent
-
+            sensor.AddObservation(signedAngle / 180f);
 
             // Distance to opponent
             sensor.AddObservation(Vector3.Distance(this.localPosition, this.opponentPosition)); //Distance to opponent
@@ -362,7 +362,6 @@ public class SparringAgent : Agent
             // Actions (within each of the agent states)
             if (this.currentState is IMoveTypeState moveTypeState)
             {
-                //sensor.AddObservation((float)moveTypeState.GetMoveTypeIndex() / moveTypeState.mapLength); //Normalized move type index
                 sensor.AddObservation((float)moveTypeState.GetMoveTypeIndex());
             }
             else
@@ -391,12 +390,12 @@ public class SparringAgent : Agent
         return new VisibleState
         (
             transform.localPosition,
-            transform.forward,
+            transform.Find("mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:Neck/mixamorig:Head").forward,
             opponent.transform.localPosition,
             currentState,
             idleState,
             hurtState,
-            stateMapping.TryGetValue(currentState.GetType().Name, out int stateIdx) ? stateIdx : 0,
+            stateMapping.TryGetValue(currentState?.GetType().Name ?? "", out int stateIdx) ? stateIdx : 0,
             currentState is IMoveTypeState moveTypeState ? moveTypeState.GetMoveTypeIndex() : 0,
             doingMove,
             hitsReceived
@@ -579,7 +578,7 @@ public class SparringAgent : Agent
         */
 
         // Reset hits received
-        // hitsReceived = 0;
+        hitsReceived = 0;
 
         // Reset rigidbody
         rb.linearVelocity = Vector3.zero;

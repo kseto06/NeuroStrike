@@ -446,11 +446,21 @@ MonoBehaviour:
     StartingRot: {x: 0, y: 0, z: 0, w: 0}
     Rb: {fileID: 0}
     totalReward: 0
+    distanceReward: 0
+    angleReward: 0
+    hitsReward: 0
+    hurtReward: 0
+    blockReward: 0
   - agent: {fileID: 6474704830891643022}
     StartingPos: {x: 0, y: 0, z: 0}
     StartingRot: {x: 0, y: 0, z: 0, w: 0}
     Rb: {fileID: 0}
     totalReward: 0
+    distanceReward: 0
+    angleReward: 0
+    hitsReward: 0
+    hurtReward: 0
+    blockReward: 0
 --- !u!1 &2808096401979112697
 GameObject:
   m_ObjectHideFlags: 0
@@ -1126,7 +1136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 18
+    VectorObservationSize: 16
     NumStackedVectorObservations: 5
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -2459,7 +2469,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 18
+    VectorObservationSize: 16
     NumStackedVectorObservations: 5
     m_ActionSpec:
       m_NumContinuousActions: 0
