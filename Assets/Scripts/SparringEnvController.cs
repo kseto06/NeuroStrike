@@ -149,9 +149,11 @@ public class SparringEnvController : MonoBehaviour
             m_playerAgent.AddReward(distReward);
             m_opponentAgent.AddReward(distReward);
         }
+
+        // Debug.Log($"Environment {m_playerAgent.agent.area.name} -- Distance: {Vector3.Distance(m_playerAgent.agent.transform.localPosition, m_opponentAgent.agent.transform.localPosition)}");
     }
 
-    private float DistanceReward(float distance, float optimal_dist = 0.7f, float a = 1.4f)
+    private float DistanceReward(float distance, float optimal_dist = 0.85f, float a = 1.4f)
     {
         /*
             Function to compute a piecewise log function based on distance between agents
@@ -319,6 +321,7 @@ public class SparringEnvController : MonoBehaviour
             // Reset agent position and rotation
             agentInfo.agent.SetAgentInfo(agentInfo);
             agentInfo.agent.ResetAgent();
+            agentInfo.agent.ResetState();
             agentInfo.agent.Respawn();
         }
     }

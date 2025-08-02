@@ -10,9 +10,9 @@ public class AnimatorTriggerSetup : EditorWindow
     private List<string> hitboxAnimations = new List<string>
     {
         "LeftJab", "LeftCross", "LeftHook",
-        "RightJab", "RightCross", "RightHook",
-        "LeftUppercut", "RightUppercut", "LeadUppercut", "RearUppercut",
-        "RightElbow", "LeftElbow", "RightUpwardsElbow",
+        "RightCross", "RightHook",
+        "LeadUppercut", "RearUppercut",
+        "RightElbow", "RightUpwardsElbow",
         "LeadKnee", "RearKnee",
         "LowKick", "MidRoundhouseKick", "HighRoundhouseKick",
         "SpinningHookKick", "SideKick",

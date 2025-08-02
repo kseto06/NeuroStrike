@@ -76,15 +76,11 @@ public class SparringAgent : Agent
         "LeftJab",
         "LeftCross",
         "LeftHook",
-        "RightJab",
         "RightCross",
         "RightHook",
-        "LeftUppercut",
-        "RightUppercut",
         "LeadUppercut",
         "RearUppercut",
         "RightElbow",
-        "LeftElbow",
         "RightUpwardsElbow",
         "LeadKnee",
         "RearKnee",
@@ -160,6 +156,19 @@ public class SparringAgent : Agent
         {
             team = Team.Opponent;
         }
+
+        //Area bounds
+        ground.SetActive(true);
+        areaBounds = ground.GetComponent<Collider>().bounds;
+
+        if (ground == null)
+        {
+            Debug.LogError("Ground reference not set in inspector");
+        }
+        else if (ground.GetComponent<Collider>() == null)
+        {
+            Debug.LogError("Ground object has no collider: ", ground);
+        }
     }
 
     void Start()
@@ -167,9 +176,6 @@ public class SparringAgent : Agent
         // Animation setup
         animator = GetComponent<Animator>();
         animationController = GetComponent<AnimationController>();
-
-        //Area bounds
-        areaBounds = ground.GetComponent<Collider>().bounds;
 
         if (animationController == null)
         {
@@ -475,12 +481,12 @@ public class SparringAgent : Agent
         }
     }
 
-    private Vector3 GetRandomSpawnPos()
+    public Vector3 GetRandomSpawnPos()
     {
         bool foundSpawn = false;
         var randomSpawn = Vector3.zero;
         const int maxAttempts = 50;
-        const float spawnAreaMarginMultipler = 0.9f;
+        const float spawnAreaMarginMultipler = 0.65f;
 
         //error checking
         if (ground == null)
@@ -495,7 +501,10 @@ public class SparringAgent : Agent
             var collider = ground.GetComponent<Collider>();
             if (collider != null)
             {
+                collider.enabled = true;
+                ground.SetActive(true);
                 areaBounds = collider.bounds;
+                Debug.Log($"AreaBounds info {areaBounds.ToString("F4")}");
             }
             else
             {
@@ -546,22 +555,21 @@ public class SparringAgent : Agent
         return randomSpawn;
     }
 
-    private Quaternion GetRandomSpawnRot()
+    public Quaternion GetRandomSpawnRot()
     {
         // Randomly choose a Y-axis rotation between 0 and 360 degrees
         float randomY = UnityEngine.Random.Range(0f, 360f);
         return Quaternion.Euler(0f, randomY, 0f);
     }
 
-    //Respawning -- set back default positions
+    //Domain randomization respawning
     public void Respawn()
     {
         transform.position = m_agentInfo.StartingPos;
-        //Vector3 pos = transform.position;
         Vector3 pos = GetRandomSpawnPos();
         pos.y += 0.2f; // Ensure the agent is above the ground
         transform.position = pos;
-        //transform.rotation = m_agentInfo.StartingRot;
+
         transform.rotation = GetRandomSpawnRot();
         ResetState();
     }

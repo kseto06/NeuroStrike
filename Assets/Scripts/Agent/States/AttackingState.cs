@@ -11,28 +11,24 @@ public class AttackingState : AgentState, IMoveTypeState
         { "LeftJab", 0 },
         { "LeftCross", 1 },
         { "LeftHook", 2 },
-        { "RightJab", 3 },
-        { "RightCross", 4 },
-        { "RightHook", 5 },
-        { "LeftUppercut", 6 },
-        { "RightUppercut", 7 },
-        { "LeadUppercut", 8 },
-        { "RearUppercut", 9 },
-        { "RightElbow", 10 },
-        { "LeftElbow", 11 },
-        { "RightUpwardsElbow", 12 },
-        { "LeadKnee", 13 },
-        { "RearKnee", 14 },
-        { "LowKick", 15 },
-        { "MidRoundhouseKick", 16 },
-        { "HighRoundhouseKick", 17 },
-        { "SpinningHookKick", 18 },
-        { "SideKick", 19 },
-        { "LeadTeep", 20 },
-        { "RearTeep", 21 },
-        { "ComboPunch", 22 }
+        { "RightCross", 3 },
+        { "RightHook", 4 },
+        { "LeadUppercut", 5 },
+        { "RearUppercut", 6 },
+        { "RightElbow", 7 },
+        { "RightUpwardsElbow", 8 },
+        { "LeadKnee", 9 },
+        { "RearKnee", 10 },
+        { "LowKick", 11 },
+        { "MidRoundhouseKick", 12 },
+        { "HighRoundhouseKick", 13 },
+        { "SpinningHookKick", 14 },
+        { "SideKick", 15 },
+        { "LeadTeep", 16 },
+        { "RearTeep", 17 },
+        { "ComboPunch", 18 }
     };
-    public const int mapLength = 23;
+    public const int mapLength = 19;
 
     public AttackingState(SparringAgent agent, string action) : base(agent, action)
     {
