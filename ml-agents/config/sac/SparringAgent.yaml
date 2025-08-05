@@ -1,15 +1,17 @@
 behaviors:
   SparringAgent:
-    trainer_type: ppo
+    trainer_type: sac
     hyperparameters:
-      batch_size: 512
-      buffer_size: 20480
       learning_rate: 0.0003
-      beta: 0.005
-      epsilon: 0.2
-      lambd: 0.95
-      num_epoch: 5
-      learning_rate_schedule: linear
+      learning_rate_schedule: constant
+      batch_size: 256
+      buffer_size: 500000
+      buffer_init_steps: 2500
+      tau: 0.005
+      steps_per_update: 10.0
+      save_replay_buffer: false
+      init_entcoef: 0.1
+      reward_signal_steps_per_update: 10.0
     network_settings:
       normalize: false
       hidden_units: 512
@@ -22,12 +24,9 @@ behaviors:
       extrinsic:
         gamma: 0.99
         strength: 1.0
-      curiosity:
-        gamma: 0.99
-        strength: 0.02
         network_settings:
           hidden_units: 256
-        learning_rate: 0.0003
+
     keep_checkpoints: 5
     max_steps: 100000000
     time_horizon: 1000
@@ -39,5 +38,7 @@ behaviors:
       window: 30
       play_against_latest_model_ratio: 0.6
       initial_elo: 1200.0
+
 env_settings:
   num_areas: 24
+

@@ -6,7 +6,7 @@ using UnityEngine;
 public class SparringEnvController : MonoBehaviour
 {
     [Header("Env Params")]
-    private const int MAX_STEPS = 2500;
+    private const int MAX_STEPS = 5000;
 
     [SerializeField]
     public int totalSteps

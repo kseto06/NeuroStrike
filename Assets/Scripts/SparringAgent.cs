@@ -20,7 +20,7 @@ public class SparringAgent : Agent
     public SparringAgent opponent;
     [HideInInspector] public Team team;
     private BehaviorParameters behaviorParameters;
-    private const int MAX_STEPS = 2500; // Maximum steps per episode (20s)
+    private const int MAX_STEPS = 5000; // Maximum steps per episode (20s)
 
     //Env
     [SerializeField] private GameObject ground;
@@ -486,7 +486,7 @@ public class SparringAgent : Agent
         bool foundSpawn = false;
         var randomSpawn = Vector3.zero;
         const int maxAttempts = 50;
-        const float spawnAreaMarginMultipler = 0.65f;
+        const float spawnAreaMarginMultipler = 0.5f;
 
         //error checking
         if (ground == null)
