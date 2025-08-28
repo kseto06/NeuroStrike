@@ -1,7 +1,7 @@
 <h1 align="center">NeuroStrike</h1>
 
 <div align="center">
-    NeuroStrike is a Unity research project that explores self-play reinforcement learning between two agents in a sparring environment. The ultimate goal of an agent in this RL environment is to land as many attacks as possible on the opponent while minimizing as many attacks landed on itself through effective movement and blocking. This project aims to build an RL framework for agents to learn effective strategies for sparring through observation and reward tuning.
+    NeuroStrike is a Unity reinforcement learning (RL) framework and research project that explores self-play reinforcement learning between two agents in a 3D sparring environment. The ultimate goal of an agent in this RL environment is to land as many attacks as possible on the opponent while minimizing as many attacks landed on itself through effective movement and blocking. This project aims to build an RL framework for agents to learn effective strategies for sparring through observation and reward tuning.
 </div>
 
 <br>
