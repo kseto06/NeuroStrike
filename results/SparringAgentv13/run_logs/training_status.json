@@ -1,0 +1,66 @@
+{
+    "SparringAgent": {
+        "elo": 1139.4126409567825,
+        "checkpoints": [
+            {
+                "steps": 79499952,
+                "file_path": "results/SparringAgentv13/SparringAgent/SparringAgent-79499952.onnx",
+                "reward": -0.2903200300809528,
+                "creation_time": 1756247513.624175,
+                "auxillary_file_paths": [
+                    "results/SparringAgentv13/SparringAgent/SparringAgent-79499952.pt"
+                ]
+            },
+            {
+                "steps": 79999902,
+                "file_path": "results/SparringAgentv13/SparringAgent/SparringAgent-79999902.onnx",
+                "reward": 0.43038870937684004,
+                "creation_time": 1756248720.443053,
+                "auxillary_file_paths": [
+                    "results/SparringAgentv13/SparringAgent/SparringAgent-79999902.pt"
+                ]
+            },
+            {
+                "steps": 80499852,
+                "file_path": "results/SparringAgentv13/SparringAgent/SparringAgent-80499852.onnx",
+                "reward": -0.19162491118085795,
+                "creation_time": 1756249923.4077718,
+                "auxillary_file_paths": [
+                    "results/SparringAgentv13/SparringAgent/SparringAgent-80499852.pt"
+                ]
+            },
+            {
+                "steps": 80999952,
+                "file_path": "results/SparringAgentv13/SparringAgent/SparringAgent-80999952.onnx",
+                "reward": -0.043060965836048126,
+                "creation_time": 1756251124.888164,
+                "auxillary_file_paths": [
+                    "results/SparringAgentv13/SparringAgent/SparringAgent-80999952.pt"
+                ]
+            },
+            {
+                "steps": 81345552,
+                "file_path": "results/SparringAgentv13/SparringAgent/SparringAgent-81345552.onnx",
+                "reward": -0.046409042086452246,
+                "creation_time": 1756251956.200827,
+                "auxillary_file_paths": [
+                    "results/SparringAgentv13/SparringAgent/SparringAgent-81345552.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 81345552,
+            "file_path": "results/SparringAgentv13/SparringAgent.onnx",
+            "reward": -0.046409042086452246,
+            "creation_time": 1756251956.200827,
+            "auxillary_file_paths": [
+                "results/SparringAgentv13/SparringAgent/SparringAgent-81345552.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "1.1.0",
+        "torch_version": "2.2.2"
+    }
+}
