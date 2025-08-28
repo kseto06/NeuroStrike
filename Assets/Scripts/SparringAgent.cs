@@ -23,7 +23,7 @@ public class SparringAgent : Agent
     private const int MAX_STEPS = 5000; // Maximum steps per episode (20s)
 
     //Env
-    [SerializeField] private GameObject ground;
+    [SerializeField] public GameObject ground;
     [SerializeField] public GameObject area;
     [HideInInspector] private Bounds areaBounds;
 
@@ -43,7 +43,7 @@ public class SparringAgent : Agent
         }
     }
     private SparringEnvController m_envController;
-    SparringEnvController.AgentInfo m_agentInfo;
+    public SparringEnvController.AgentInfo m_agentInfo;
 
     // Moveset
     private List<string> Moveset = new List<string>();
@@ -101,8 +101,11 @@ public class SparringAgent : Agent
     private Coroutine resetCoroutine;
     public bool hitRegistered = false;
 
-    [Header("Rigidbody")]
+    [Header("Rigidbody & Positions")]
     public Rigidbody rb;
+    public Vector3 previousPosition;
+    public float previousAngle;
+    private bool hasInitializedPrevPos = false;
 
     [Header("Hurtboxes & Hitboxes")]
     [SerializeField] private Hurtbox hurtbox;
@@ -111,16 +114,17 @@ public class SparringAgent : Agent
 
     [Header("FSM")]
     //Current state of the agent
-    private AgentState currentState;
+    public AgentState currentState;
+    private AgentState previousState;
     public string inputAction;
     public bool doingMove = false;
 
     // Init all possible agent states
-    private IdleState idleState;
-    private BlockingState blockState;
-    private AttackingState attackState;
-    private HurtState hurtState;
-    private MovingState moveState;
+    public IdleState idleState;
+    public BlockingState blockState;
+    public AttackingState attackState;
+    public HurtState hurtState;
+    public MovingState moveState;
 
     // State Mapping
     private Dictionary<string, int> stateMapping = new Dictionary<string, int> {
@@ -201,18 +205,28 @@ public class SparringAgent : Agent
         hurtState = new HurtState(this, "");
         moveState = new MovingState(this, "");
 
+        previousState = null;
         currentState = idleState; //Start in idle state
         currentState.Enter(null);
     }
 
     void Update()
     {
+        if (!hasInitializedPrevPos)
+        {
+            // Position setup
+            previousPosition = this.area.transform.InverseTransformPoint(this.m_agentInfo.StartingPos);
+            previousAngle = Vector3.Angle(this.area.transform.InverseTransformDirection(this.transform.Find("mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:Neck/mixamorig:Head").forward), this.opponent.transform.localPosition - this.transform.localPosition);
+            hasInitializedPrevPos = true;
+        }
+
         //Update FSM state
         currentState.action = inputAction;
 
         AgentState nextState = currentState.Process();
         if (nextState != currentState)
         {
+            previousState = currentState;
             currentState.Exit(nextState);
             nextState.Enter(currentState);
             currentState = nextState;
@@ -225,6 +239,7 @@ public class SparringAgent : Agent
             if (currentState.CanBeInterrupted(inputAction))
             {
                 AgentState stateFromInput = GetStateFromAction(inputAction);
+                previousState = currentState;
                 currentState.Exit(stateFromInput);
                 stateFromInput.Enter(currentState);
                 currentState = stateFromInput;
@@ -293,6 +308,9 @@ public class SparringAgent : Agent
         public Vector3 facingDirection;
         public Vector3 opponentPosition;
 
+        public Vector3 linearVelocity;
+        public Vector3 angularVelocity;
+
         public AgentState currentState;
         public AgentState idleState;
         public AgentState hurtState;
@@ -308,6 +326,9 @@ public class SparringAgent : Agent
             Vector3 localPosition,
             Vector3 facingDirection,
             Vector3 opponentPosition,
+
+            Vector3 linearVelocity,
+            Vector3 angularVelocity,
 
             //State
             AgentState currentState,
@@ -326,6 +347,8 @@ public class SparringAgent : Agent
             this.localPosition = localPosition;
             this.facingDirection = facingDirection;
             this.opponentPosition = opponentPosition;
+            this.linearVelocity = linearVelocity;
+            this.angularVelocity = angularVelocity;
             this.currentState = currentState;
             this.idleState = idleState;
             this.hurtState = hurtState;
@@ -342,6 +365,13 @@ public class SparringAgent : Agent
             // sensor.AddObservation(this.localPosition.y);
             sensor.AddObservation(this.localPosition.z);
 
+            // Agent velocity
+            sensor.AddObservation(linearVelocity.x);
+            sensor.AddObservation(linearVelocity.z);
+
+            // Agent angular velocity
+            sensor.AddObservation(angularVelocity.y);
+    
             // Perception params -- distance and angle to opponent
             Vector3 forwardDir = this.facingDirection;
             forwardDir.y = 0; //ignore vertical component
@@ -396,8 +426,10 @@ public class SparringAgent : Agent
         return new VisibleState
         (
             transform.localPosition,
-            transform.Find("mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:Neck/mixamorig:Head").forward,
+            area.transform.InverseTransformDirection(transform.Find("mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:Neck/mixamorig:Head").forward),
             opponent.transform.localPosition,
+            transform.InverseTransformDirection(this.rb.linearVelocity),
+            transform.InverseTransformDirection(this.rb.angularVelocity),
             currentState,
             idleState,
             hurtState,
@@ -462,8 +494,19 @@ public class SparringAgent : Agent
         // Moving agent -- change action animation based on chosen animation index
         MoveAgent(actionBuffers.DiscreteActions);
 
-        // Add angle reward 
-        envController.AngleReward(this.team);
+        // Add distance reward 
+        float DistReward = envController.DistanceReward(this, this.opponent);
+        m_agentInfo.distanceReward += DistReward;
+        m_agentInfo.AddReward(DistReward);
+
+        // // Add distance to center reward
+        float DistToCenterReward = envController.DistanceToCenterReward(this);
+        m_agentInfo.distanceToCenterReward += DistToCenterReward;
+        m_agentInfo.AddReward(DistToCenterReward);
+
+        // Update position once movement has been executed
+        this.previousPosition = this.transform.localPosition;
+        this.previousState = this.currentState;
     }
 
     public void MoveAgent(ActionSegment<int> action)

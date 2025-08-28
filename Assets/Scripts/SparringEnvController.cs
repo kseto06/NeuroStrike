@@ -7,6 +7,7 @@ public class SparringEnvController : MonoBehaviour
 {
     [Header("Env Params")]
     private const int MAX_STEPS = 5000;
+    [SerializeField] private GameObject area;
 
     [SerializeField]
     public int totalSteps
@@ -51,6 +52,7 @@ public class SparringEnvController : MonoBehaviour
 
         // Partial rewards for logging
         [HideInInspector] public float distanceReward = 0f;
+        [HideInInspector] public float distanceToCenterReward = 0f;
         [HideInInspector] public float angleReward = 0f;
         [HideInInspector] public float hitsReward = 0f;
         [HideInInspector] public float hurtReward = 0f;
@@ -133,106 +135,144 @@ public class SparringEnvController : MonoBehaviour
         //Reset if time limit exceeded
         if (totalSteps >= MAX_STEPS && MAX_STEPS > 0)
         {
-            //NOTE: EpisodeInterrupted indicates episode ended but not due to Agent's "fault"
-            m_playerAgent.agent.EpisodeInterrupted();
-            m_opponentAgent.agent.EpisodeInterrupted();
+            m_playerAgent.agent.EndEpisode();
+            m_opponentAgent.agent.EndEpisode();
             ResetEnv();
+
+            //Add/Decrease reward for ELO recording
+            /*
+            Referencing: 
+            The ELO is calculated using the final reward. If an agent wins, the final reward must be positive. If an agent loses, the final reward must be negative. Otherwise, 0 indicates a draw. 
+            Final reward is the very last reward that the agent receives
+            */
+            if (m_playerAgent.totalReward > m_opponentAgent.totalReward)
+            {
+                m_playerAgent.AddReward(1.0f);
+                m_opponentAgent.AddReward(-1.0f);
+            }
+            else if (m_playerAgent.totalReward < m_opponentAgent.totalReward)
+            {
+                m_playerAgent.AddReward(-1.0f);
+                m_opponentAgent.AddReward(1.0f);
+            }
+            else
+            {
+                m_playerAgent.AddReward(0.0f);
+                m_opponentAgent.AddReward(0.0f);
+            }
+
             episodeCount++;
-        }
-        else 
-        {
-            float distReward = DistanceReward(
-                Vector3.Distance(m_playerAgent.agent.transform.localPosition, m_opponentAgent.agent.transform.localPosition)
-            );
-            m_playerAgent.distanceReward += distReward;
-            m_opponentAgent.distanceReward += distReward;
-            m_playerAgent.AddReward(distReward);
-            m_opponentAgent.AddReward(distReward);
         }
 
         // Debug.Log($"Environment {m_playerAgent.agent.area.name} -- Distance: {Vector3.Distance(m_playerAgent.agent.transform.localPosition, m_opponentAgent.agent.transform.localPosition)}");
     }
 
-    private float DistanceReward(float distance, float optimal_dist = 0.85f, float a = 1.4f)
+    public float DistanceReward(SparringAgent currentAgent, SparringAgent opponentAgent)
     {
         /*
-            Function to compute a piecewise log function based on distance between agents
-            Will penalize agents for being too far or too close, aiming to keep them at the most optimal striking distance
-            Hyperparameters:
-            - optimal_dist: Set optimal distance for striking
-            - a: Vertical stretching/compressing factor for the log function
-        */
-        distance = Mathf.Max(distance, 0.01f);  //avoid log(0)
-        float reward = distance / optimal_dist; //compute ratio
+            Function to compute the modulo-existential reward based on whether the agent is moving toward the opponent.
+            The reward is calculated by taking the dot product of the agent's normalized velocity
+            with the normalized direction vector toward the opponent.
 
-        if (distance < optimal_dist)
+            Args:
+            - currentAgent: The SparringAgent for which we check to see if it is moving/hurt
+        */
+
+        // Calculate delta position and direction to opponent
+        Vector3 deltaPosition = currentAgent.transform.localPosition - currentAgent.previousPosition;
+        Vector3 directionToOpponent = opponentAgent.transform.localPosition - currentAgent.transform.localPosition;
+
+        // Prevent division by zero or very small values
+        float deltaPositionNorm = deltaPosition.magnitude;
+        float directionToOpponentNorm = directionToOpponent.magnitude;
+
+        // If norms are too small or animation is not moving/hurt, return 0 reward
+        if (deltaPositionNorm < 1e-6 || directionToOpponentNorm < 1e-6 ||
+            !(currentAgent.currentState is MovingState || currentAgent.currentState is HurtState))
         {
-            reward = a * Mathf.Log(reward);
+            return 0f;
         }
-        else if (distance > optimal_dist)
+
+        deltaPosition /= deltaPositionNorm;
+        directionToOpponent /= directionToOpponentNorm;
+        return Vector3.Dot(deltaPosition, directionToOpponent) * 0.5f;
+    }
+
+    public float DistanceToCenterReward(SparringAgent currentAgent)
+    {
+        /*
+            Function to compute the reward based on an agent's distance to the center of the arena.
+            Encourages agents to stay near the center
+
+            Args:
+            - currentAgent: The individual SparringAgent for which we reference positions and states
+        */
+        //Calculating distances to the center from current and previous positions
+        Vector3 center = currentAgent.area.transform.InverseTransformPoint(currentAgent.ground.GetComponent<Collider>().bounds.center); //convert to local space
+
+        Vector3 currentPos = currentAgent.transform.localPosition;
+        Vector3 previousPos = currentAgent.previousPosition;
+
+        float currentDistance = Mathf.Abs(Vector2.Distance(new Vector2(currentPos.x, currentPos.z), new Vector2(center.x, center.z)));
+        float previousDistance = Mathf.Abs(Vector2.Distance(new Vector2(previousPos.x, previousPos.z), new Vector2(center.x, center.z)));
+
+        if (currentDistance < previousDistance && (currentAgent.currentState is MovingState || currentAgent.currentState is HurtState))
         {
-            reward = -a * Mathf.Log(reward);
+            //Moving towards center, return positive reward
+            return (previousDistance - currentDistance) * 1.5f;
+        }
+        else if (currentDistance > previousDistance && (currentAgent.currentState is MovingState || currentAgent.currentState is HurtState))
+        {
+            //Moving away from center, return negative reward
+            return -0.1f;
         }
         else
         {
-            //Optimal distance, neutral reward
-            reward = 0f;
+            //No movement detected
+            return 0f;
         }
-
-        // Return normalized reward by max steps for existential reward
-        // Debug.Log($"Env: {m_playerAgent.agent.area.name} -- Player Distance Reward: {reward / MAX_STEPS}");
-        return reward / MAX_STEPS; 
     }
 
-    public void AngleReward(Team team)
+    public float AngleReward(SparringAgent currentAgent, SparringAgent opponentAgent)
     {
         /*
-            Function to handle existential rewards based on the angle to the opponent
-            This function should be called from the SparringAgent script when the angle is calculated
+            Function to compute the angle reward based on the agent's facing direction and the direction towards the opponent.
+            Encourages agents to face their opponent.
+
+            Args:
+            - currentAgent: The SparringAgent for which we compute the angle reward
         */
-        float angleReward = 0f;
-
-        if (team == Team.Player)
+        if (currentAgent.currentState is not MovingState)
         {
-            angleReward = ComputeNormalizedAngle(m_playerAgent.agent.transform, m_opponentAgent.agent.transform);
-            //Debug.Log($"Env: {m_playerAgent.agent.area.name} -- Player Angle Reward: {angleReward / 1000f}");
-            m_playerAgent.angleReward += angleReward / 1000f;
-            m_playerAgent.AddReward(angleReward / 1000f);
+            return 0f;
         }
-        else
+
+        //Calculate angle based on forward direction and distance to opponent
+        Vector3 forwardDir = currentAgent.transform.Find("mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:Neck/mixamorig:Head").forward;
+        forwardDir.y = 0;
+        forwardDir.Normalize();
+
+        Vector3 directionToOpponent = opponentAgent.transform.position - currentAgent.transform.position;
+        directionToOpponent.y = 0;
+        directionToOpponent.Normalize();
+
+        if (forwardDir.magnitude < 1e-6f || directionToOpponent.magnitude < 1e-6f)
         {
-            angleReward = ComputeNormalizedAngle(m_opponentAgent.agent.transform, m_playerAgent.agent.transform);
-            //Debug.Log($"Env: {m_opponentAgent.agent.area.name} -- Opponent Angle Reward: {angleReward / MAX_STEPS * 10f}");
-            m_opponentAgent.angleReward += angleReward / 1000f;
-            m_opponentAgent.AddReward(angleReward / 1000f);
+            return 0f;
         }
-    }
 
-    private float ComputeNormalizedAngle(Transform playerTransform, Transform opponentTransform) 
-    {
-        Vector3 forwardDir = playerTransform.Find("mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:Neck/mixamorig:Head").forward;
-        forwardDir.y = 0; //ignore vertical component
-        forwardDir = forwardDir.normalized;
-
-        Vector3 direction = opponentTransform.localPosition - playerTransform.localPosition;
-        direction.y = 0;
-        direction = direction.normalized;
-
-        // Return normalized [-1, 1] negative angle to punish the agent for facing away
-        float angle = Vector3.Angle(
-            forwardDir,
-            direction
-        );
-        return -(angle / 180f);
+        float reward = Vector3.Dot(forwardDir, directionToOpponent);
+        return reward;
     }
 
     public void AttackLandedReward(Team hitTeam, string hitType)
     {
         /*
             Function to handle rewards for attacks that land on a target
-            hitTeam: Team that was hit (Player or Opponent)
-            hitType: Type of hit (e.g. "HeadHit", "LegHit")
-            This function should be called from the Hitbox script when a hit is detected
+            Args:
+            - hitTeam: Team that was hit (Player or Opponent)
+            - hitType: Type of hit (e.g. "HeadHit", "LegHit")
+            This function should be called from Hitbox.cs when a hit is detected
         */
         float reward = 0f;
 
@@ -269,9 +309,9 @@ public class SparringEnvController : MonoBehaviour
     {
         /*
             Function to handle rewards for blocked attacks
-            hitTeam: Team that was hit (Player or Opponent)
-            isBlocking: Whether the attack was blocked
-            This function should be called from the Hitbox script when a block is detected
+            hitTeam: Team -- Team that was hit (Player or Opponent)
+            isBlocking: bool -- Whether the attack was blocked
+            This function is called from the Hitbox script when a block is detected
         */
 
         if (isBlocking)
@@ -305,7 +345,7 @@ public class SparringEnvController : MonoBehaviour
         {
             // Stats recorder logging -- partial rewards
             statsRecorder.Add("Rewards/CumulativeDistanceReward", agentInfo.distanceReward);
-            statsRecorder.Add("Rewards/CumulativeAngleReward", agentInfo.angleReward);
+            statsRecorder.Add("Rewards/CumulativeDistanceToCenterReward", agentInfo.distanceToCenterReward);
             statsRecorder.Add("Rewards/CumulativeHitsReward", agentInfo.hitsReward);
             statsRecorder.Add("Rewards/CumulativeHurtReward", agentInfo.hurtReward);
             statsRecorder.Add("Rewards/CumulativeBlockReward", agentInfo.blockReward);
@@ -314,7 +354,8 @@ public class SparringEnvController : MonoBehaviour
             agentInfo.agent.hitsReceived = 0;
             agentInfo.totalReward = 0f;
             agentInfo.distanceReward = 0f;
-            agentInfo.angleReward = 0f;
+            agentInfo.distanceToCenterReward = 0f;
+            //agentInfo.angleReward = 0f;
             agentInfo.hitsReward = 0f;
             agentInfo.blockReward = 0f;
 

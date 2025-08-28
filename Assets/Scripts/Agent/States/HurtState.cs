@@ -23,6 +23,7 @@ public class HurtState : AgentState, IMoveTypeState
     public override void Enter(AgentState fromState)
     {
         base.Enter(fromState);
+        agent.hitRegistered = true;
         agent.animationController.animator.applyRootMotion = false;
         agent.animationController.Play(this.action, overrideAnimation: true); //Overriding animations on any hit
         agent.hitsReceived++;

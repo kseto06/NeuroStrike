@@ -437,6 +437,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be6730e6c12ed4ab0abbc5f41cf020db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  area: {fileID: 6686512784876127673}
   m_totalSteps: 1500
   m_stepsRemaining: 1500
   episodeCount: 0
@@ -447,6 +448,7 @@ MonoBehaviour:
     Rb: {fileID: 0}
     totalReward: 0
     distanceReward: 0
+    distanceToCenterReward: 0
     angleReward: 0
     hitsReward: 0
     hurtReward: 0
@@ -457,6 +459,7 @@ MonoBehaviour:
     Rb: {fileID: 0}
     totalReward: 0
     distanceReward: 0
+    distanceToCenterReward: 0
     angleReward: 0
     hitsReward: 0
     hurtReward: 0
@@ -835,7 +838,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.3
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       propertyPath: m_LocalPosition.y
@@ -843,7 +846,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.2063622
+      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1136,7 +1139,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 16
+    VectorObservationSize: 22
     NumStackedVectorObservations: 5
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -1174,10 +1177,24 @@ MonoBehaviour:
   team: 0
   ground: {fileID: 917738642091635149}
   area: {fileID: 6686512784876127673}
+  m_agentInfo:
+    agent: {fileID: 0}
+    StartingPos: {x: 0, y: 0, z: 0}
+    StartingRot: {x: 0, y: 0, z: 0, w: 0}
+    Rb: {fileID: 0}
+    totalReward: 0
+    distanceReward: 0
+    distanceToCenterReward: 0
+    angleReward: 0
+    hitsReward: 0
+    hurtReward: 0
+    blockReward: 0
   animationController: {fileID: 5444376449985297205}
   isAnimating: 0
   hitRegistered: 0
   rb: {fileID: 5735504385785264687}
+  previousPosition: {x: 0, y: 0, z: 0}
+  previousAngle: 0
   hurtbox: {fileID: 8717839201060337813}
   hitsReceived: 0
   hitbox: {fileID: 7826883142658090017}
@@ -1195,9 +1212,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DecisionPeriod: 5
+  DecisionPeriod: 10
   DecisionStep: 0
-  TakeActionsBetweenDecisions: 1
+  TakeActionsBetweenDecisions: 0
 --- !u!4 &1913538283204936197 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
@@ -1920,7 +1937,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1928,7 +1945,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.2063622
+      value: -4.406362
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2469,7 +2486,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 16
+    VectorObservationSize: 22
     NumStackedVectorObservations: 5
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -2507,10 +2524,24 @@ MonoBehaviour:
   team: 0
   ground: {fileID: 917738642091635149}
   area: {fileID: 6686512784876127673}
+  m_agentInfo:
+    agent: {fileID: 0}
+    StartingPos: {x: 0, y: 0, z: 0}
+    StartingRot: {x: 0, y: 0, z: 0, w: 0}
+    Rb: {fileID: 0}
+    totalReward: 0
+    distanceReward: 0
+    distanceToCenterReward: 0
+    angleReward: 0
+    hitsReward: 0
+    hurtReward: 0
+    blockReward: 0
   animationController: {fileID: 2188475223786114678}
   isAnimating: 0
   hitRegistered: 0
   rb: {fileID: 5908505163233740011}
+  previousPosition: {x: 0, y: 0, z: 0}
+  previousAngle: 0
   hurtbox: {fileID: 4052303381263116561}
   hitsReceived: 0
   hitbox: {fileID: 5556437914469886163}
@@ -2528,9 +2559,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DecisionPeriod: 5
+  DecisionPeriod: 10
   DecisionStep: 0
-  TakeActionsBetweenDecisions: 1
+  TakeActionsBetweenDecisions: 0
 --- !u!1 &4152005548006147499 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -9070493210130169274, guid: 74716a4eabb2a44a3a8d64967839d313, type: 3}
